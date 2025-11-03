@@ -1819,21 +1819,28 @@ cat data/performance_baseline.json
 
 **What:** Microphone input and speaker output interface  
 **Why:** Foundation for all voice features  
-**Dependencies:** SETUP-001, HARDWARE-002
+**Dependencies:** SETUP-001, SETUP-002, HARDWARE-002  
+**Files:** @src/voice/audio_io.py
 
 ```markdown
 @src/voice/audio_io.py
 
-Create comprehensive audio I/O module for Zema:
+CRITICAL: Create comprehensive audio I/O module with step-by-step implementation.
 
-Requirements:
-1. Microphone capture using PyAudio
-2. Speaker playback using PyAudio
-3. Support Insta360 Link 2 microphone (AI noise canceling)
-4. Configurable sample rate (16kHz default)
-5. Handle device selection (camera mic vs USB mic)
-6. Error handling for device disconnection
-7. Async support for non-blocking operations
+Step 1: Install required dependencies
+=====================================
+Ensure these are in requirements.txt:
+- pyaudio>=0.2.14
+- numpy>=1.24.0
+
+Note: PyAudio may require system libraries on Linux:
+```bash
+sudo apt-get install portaudio19-dev python3-pyaudio
+```
+
+Step 2: Create AudioIO class
+=============================
+Create src/voice/audio_io.py with complete implementation:
 
 Implementation:
 ```python
