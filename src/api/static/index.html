@@ -13,6 +13,7 @@
             <ul class="nav-menu">
                 <li><a href="#dashboard" class="active">Dashboard</a></li>
                 <li><a href="#settings">Settings</a></li>
+                <li><a href="#logs">Logs</a></li>
                 <li><a href="#users">Users</a></li>
                 <li><a href="#history">History</a></li>
                 <li><a href="#privacy">Privacy</a></li>
@@ -30,6 +31,58 @@
                         <p class="status-indicator" id="status">Initializing...</p>
                     </div>
                 </div>
+            </section>
+            
+            <section id="logs" class="section">
+                <div class="logs-container">
+                    <div class="logs-header">
+                        <h2>Application Logs</h2>
+                        <div class="logs-controls">
+                            <select id="log-level-filter">
+                                <option value="">All Levels</option>
+                                <option value="DEBUG">DEBUG</option>
+                                <option value="INFO">INFO</option>
+                                <option value="WARNING">WARNING</option>
+                                <option value="ERROR">ERROR</option>
+                                <option value="CRITICAL">CRITICAL</option>
+                            </select>
+                            <input type="text" id="log-search" placeholder="Search logs...">
+                            <input type="number" id="log-limit" value="100" min="1" max="1000" placeholder="Limit">
+                            <button id="refresh-logs">Refresh</button>
+                            <button id="clear-logs">Clear</button>
+                            <label>
+                                <input type="checkbox" id="auto-scroll" checked> Auto-scroll
+                            </label>
+                            <label>
+                                <input type="checkbox" id="live-stream"> Live Stream
+                            </label>
+                        </div>
+                        <div class="logs-stats" id="logs-stats"></div>
+                    </div>
+                    <div class="logs-viewer" id="logs-viewer">
+                        <div class="log-entry loading">Loading logs...</div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="settings" class="section">
+                <h2>Settings</h2>
+                <p>Settings configuration coming soon...</p>
+            </section>
+            
+            <section id="users" class="section">
+                <h2>Users</h2>
+                <p>User management coming soon...</p>
+            </section>
+            
+            <section id="history" class="section">
+                <h2>History</h2>
+                <p>Conversation history coming soon...</p>
+            </section>
+            
+            <section id="privacy" class="section">
+                <h2>Privacy</h2>
+                <p>Privacy settings coming soon...</p>
             </section>
         </main>
     </div>

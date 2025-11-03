@@ -228,6 +228,20 @@
 
 ## 🔍 Recent Changes Log
 
+**2025-11-03 (v0.1.1):**
+- ✅ Added Logs Viewer to Dashboard (NEW FEATURE)
+- ✅ Created `src/api/routes/logs.py` with REST API endpoints for log viewing
+- ✅ Added `/api/logs` endpoint (supports filtering by level, search, limit)
+- ✅ Added `/api/logs/stream` endpoint for real-time log streaming via SSE
+- ✅ Added `/api/logs/stats` endpoint for log file statistics
+- ✅ Added `/api/logs/clear` endpoint for clearing logs
+- ✅ Updated dashboard HTML with Logs section and controls
+- ✅ Enhanced dashboard JavaScript with log viewing functionality
+- ✅ Added CSS styling for logs viewer
+- ✅ Updated version to v0.1.1
+- ✅ Updated all documentation files (CODE_DOCUMENTATION.md, API README, main README)
+- ✅ Committed changes with proper version commit message
+
 **2025-11-03:**
 - ✅ Completed SETUP-003 - Logging System
 - ✅ Enhanced logging system with structured logging (JSON file, rich console)

@@ -601,6 +601,88 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
 - Updates dashboard without page refresh
 - Shows listening status, processing state, etc.
 
+#### `src/api/routes/logs.py`
+**Purpose:** API endpoints for viewing application logs
+
+**What it does:**
+- Provides REST API endpoints for reading logs
+- Supports filtering by log level and search terms
+- Provides real-time log streaming via Server-Sent Events (SSE)
+- Returns log statistics (file size, line counts, level distribution)
+- Allows clearing log file
+
+**Why it exists:**
+Enables users to view logs through the web dashboard UI instead of using command line. Makes debugging and monitoring easier.
+
+**Key Endpoints:**
+
+```python
+@router.get("/api/logs")
+async def get_logs(
+    limit: int = 100,
+    level: Optional[str] = None,
+    search: Optional[str] = None,
+    tail: bool = True
+) -> Dict[str, Any]
+```
+
+**What `get_logs()` does:**
+1. Reads log file (`data/logs/zema.log`)
+2. Parses JSON log entries
+3. Filters by level if specified
+4. Filters by search term if specified
+5. Returns last N entries (tail) or first N entries
+6. Returns log entries with metadata
+
+**Real-time Streaming:**
+
+```python
+@router.get("/api/logs/stream")
+async def stream_logs()
+```
+
+**What it does:**
+- Uses Server-Sent Events (SSE) for real-time log streaming
+- Sends new log entries as they're written to file
+- Allows dashboard to show live logs without polling
+
+**Statistics Endpoint:**
+
+```python
+@router.get("/api/logs/stats")
+async def get_log_stats() -> Dict[str, Any]
+```
+
+**What it does:**
+- Returns log file statistics
+- Counts logs by level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- Shows file size and line count
+- Shows last modified timestamp
+
+**Example Usage:**
+```python
+# Get last 100 logs
+GET /api/logs?limit=100&tail=true
+
+# Get only ERROR logs
+GET /api/logs?level=ERROR&limit=50
+
+# Search logs
+GET /api/logs?search=camera&limit=100
+
+# Get log statistics
+GET /api/logs/stats
+
+# Stream logs in real-time
+GET /api/logs/stream
+```
+
+**Integration:**
+- Used by dashboard JavaScript to display logs
+- Logs are displayed in real-time when Live Stream is enabled
+- Supports filtering and searching from UI
+- JSON format makes parsing easy
+
 ---
 
 ## 🔄 How Components Work Together

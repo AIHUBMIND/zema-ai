@@ -13,7 +13,7 @@ Zema is a smart hybrid voice assistant designed for mini PCs. It automatically u
 - **Voice Interaction**: Wake word detection, speech-to-text, text-to-speech
 - **Computer Vision**: Object detection, scene analysis, gesture recognition
 - **Local LLM**: Uses Ollama with Llama models for offline AI fallback
-- **Web Dashboard**: Configuration and monitoring interface
+- **Web Dashboard**: Configuration and monitoring interface with logs viewer (v0.1.1)
 - **Multi-Language**: Support for English and Amharic
 
 ## Quick Start

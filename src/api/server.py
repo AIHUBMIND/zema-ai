@@ -12,10 +12,18 @@ import uvicorn
 import asyncio
 from pathlib import Path
 from src.config.settings import Settings
+from src.api.routes import logs, system, config, users, conversations
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Zema Dashboard", version="1.0.0")
+
+# Register API routes
+app.include_router(logs.router)
+app.include_router(system.router)
+app.include_router(config.router)
+app.include_router(users.router)
+app.include_router(conversations.router)
 
 # CORS middleware
 app.add_middleware(
