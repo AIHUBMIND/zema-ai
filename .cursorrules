@@ -13,6 +13,8 @@
 - Prefer async/await over sync code
 - Use Pydantic for data validation
 - Use docstrings for all public functions and classes
+- **NO EMOJIS IN CODE**: Avoid using emojis (⚠️, ✅, ❌, ℹ️, etc.) in code strings, print statements, or output messages. Use plain text labels like "[OK]", "WARNING", "ERROR", "INFO" instead. Emojis cause encoding issues on Windows and make code more complicated.
+- Use ASCII-compatible characters only in code output
 
 ## Architecture Principles
 - Smart Hybrid Mode: Automatically detects Internet connectivity and switches between online services (preferred) and local LLM (fallback)
@@ -38,6 +40,56 @@
 - Keep functions small and focused
 - Write tests for critical functionality
 - Document public APIs
+
+## UI-First Configuration (CRITICAL)
+**CRITICAL RULE:** All configuration and settings MUST be accessible through the Settings Dashboard UI.
+
+### Configuration Management Rules:
+1. **Every setting that can be configured via command line MUST also be available in Settings Dashboard**
+   - If you add a new configuration option to `.env` or `settings.py`, you MUST add it to the Settings Dashboard
+   - If you create a command-line tool or script, add equivalent UI controls to the dashboard
+   - The goal is to control EVERY aspect of the application through UI/UX
+
+2. **Settings Dashboard Requirements:**
+   - All user-facing settings must be in `/api/config/user-facing` endpoint
+   - Settings must be organized into logical tabs (General, Voice & Audio, Camera & Vision, AI & Intelligence, Features, API Keys)
+   - Settings must have clear labels, descriptions, and appropriate input types (dropdown, slider, checkbox, text input)
+   - Settings must validate input and provide clear error messages
+   - Settings must save and persist automatically
+
+3. **New Feature Configuration:**
+   - When adding new features that require configuration:
+     - Add settings to `src/config/settings.py` (Settings class)
+     - Add to `USER_FACING_SETTINGS` in `src/api/routes/config.py`
+     - Add UI controls to Settings Dashboard (`src/api/static/index.html`)
+     - Add JavaScript handlers in `src/api/static/js/app.js`
+     - Update `.env.example` with new variables
+
+4. **Command-Line Tools:**
+   - Command-line tools are acceptable for:
+     - Hardware verification scripts
+     - Development/debugging tools
+     - One-time setup scripts
+   - However, any configuration they modify MUST also be accessible via Settings Dashboard
+   - Prefer UI over command-line for ongoing maintenance and updates
+
+5. **Maintenance Through UI:**
+   - System updates, model downloads, hardware configuration should be manageable through UI
+   - Add "System Management" or "Advanced" section to Settings Dashboard if needed
+   - Keep command-line tools as fallback only, not primary method
+
+### Examples:
+- ✅ **GOOD**: Wake word sensitivity setting → Added to Settings Dashboard Voice & Audio tab with slider
+- ✅ **GOOD**: Ollama model selection → Added to Settings Dashboard AI & Intelligence tab with dropdown
+- ❌ **BAD**: Adding new setting only to `.env` without adding to Settings Dashboard
+- ❌ **BAD**: Requiring command-line tools for routine configuration changes
+
+### Why This Matters:
+- **Easy Maintenance**: Non-technical users can configure the system
+- **Remote Management**: Can configure system through web dashboard
+- **Consistency**: All configuration in one place (Settings Dashboard)
+- **User Experience**: Better UX than editing config files manually
+- **Future-Proof**: Easy to add new features without breaking existing configuration flow
 
 ## Dependencies
 - FastAPI for web API
@@ -229,6 +281,8 @@ This will:
 1. **Run compliance check:** `python scripts/maintenance/check_rules_compliance.py`
    - Verifies code follows all .cursorrules requirements
    - Checks for type hints, docstrings, project structure
+   - Checks for NO EMOJIS in code (ASCII-compatible output only)
+   - Checks UI-First Configuration compliance (settings in Dashboard)
    - Identifies any violations
 
 2. **Fix any compliance issues** before proceeding
@@ -272,15 +326,16 @@ python scripts/maintenance/update_docs.py "Smart Hybrid Mode" ARCH-001 complete
 When finishing any task, ALWAYS follow this sequence:
 
 1. [ ] Code is complete and tested
-2. [ ] Follows project style guidelines
-3. [ ] **Run compliance check:** `python scripts/maintenance/check_rules_compliance.py`
-4. [ ] Fix any compliance violations found
-5. [ ] **Update documentation:** `python scripts/maintenance/update_docs.py "Task Name" TASK-ID complete`
-6. [ ] Verify documentation files updated (CHECKPOINT.md, PROJECT_PROGRESS.md, etc.)
-7. [ ] **Update verification checkboxes in ZEMA-CURSOR-PROMPTS.md** (change `- [ ]` to `- [x]`)
-8. [ ] **Run auto-commit:** `python scripts/maintenance/auto_commit.py "task description"`
-9. [ ] Verify push to GitHub was successful
-10. [ ] **Display verification checklist** showing all completed items in your response
+2. [ ] Follows project style guidelines (including NO EMOJIS in code)
+3. [ ] **Check UI-First Configuration**: If any new settings/config were added, ensure they're in Settings Dashboard
+4. [ ] **Run compliance check:** `python scripts/maintenance/check_rules_compliance.py`
+5. [ ] Fix any compliance violations found
+6. [ ] **Update documentation:** `python scripts/maintenance/update_docs.py "Task Name" TASK-ID complete`
+7. [ ] Verify documentation files updated (CHECKPOINT.md, PROJECT_PROGRESS.md, etc.)
+8. [ ] **Update verification checkboxes in ZEMA-CURSOR-PROMPTS.md** (change `- [ ]` to `- [x]`)
+9. [ ] **Run auto-commit:** `python scripts/maintenance/auto_commit.py "task description"`
+10. [ ] Verify push to GitHub was successful
+11. [ ] **Display verification checklist** showing all completed items in your response
 
 **CRITICAL: Final Step - Display Verification Checklist**
 After completing any task, you MUST display the verification checklist in your completion response showing:
