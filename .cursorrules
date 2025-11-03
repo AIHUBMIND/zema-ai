@@ -156,3 +156,66 @@ git push origin main
 - `docs/progress/PROJECT_PROGRESS.md` - Master progress tracker
 - `docs/architecture/CODE_DOCUMENTATION.md` - Detailed file-by-file documentation
 - `docs/architecture/ARCHITECTURE.md` - System architecture documentation
+
+## Auto-Documentation Rule (CRITICAL)
+
+### When Creating New Python Files
+**CRITICAL RULE:** Whenever a new Python file is created, you MUST:
+1. Create corresponding documentation file in `docs/` folder mirroring the same structure
+2. Documentation file path: `docs/{same_path_as_python_file}.md`
+3. Example: `src/voice/audio_io.py` → `docs/src/voice/audio_io.md`
+
+### Documentation Template
+Each new Python file documentation MUST include:
+- **File Location**: Path to the Python file
+- **Purpose**: What the file does
+- **Why It Was Created**: Context and reasoning
+- **How It Works**: Detailed explanation of functionality
+- **Dependencies**: Required libraries/modules
+- **Usage**: How to use it with examples
+- **Integration**: How it fits into the project
+
+### Auto-Documentation Process
+1. **Create Python file** in appropriate location
+2. **Create documentation file** in `docs/` following same path structure
+3. **Write comprehensive documentation** using the template above
+4. **Update folder README.md** if the folder's purpose changes
+5. **Verify documentation** matches the code structure
+
+### Folder Documentation
+When creating new folders:
+- Create `docs/{folder_path}/README.md` explaining:
+  - What the folder contains
+  - Purpose of the folder
+  - How files work together
+  - Key concepts
+
+### Documentation Checklist
+After creating any Python file:
+- [ ] Created corresponding `.md` file in `docs/` mirroring path structure
+- [ ] Documentation includes all required sections (Purpose, Why Created, How It Works, etc.)
+- [ ] Updated folder `README.md` if needed
+- [ ] Documentation follows existing documentation style
+- [ ] Code examples included where relevant
+
+### Examples
+**Creating `src/voice/wakeword.py`:**
+1. Create `docs/src/voice/wakeword.md`
+2. Include all required sections
+3. Update `docs/src/voice/README.md` if needed
+
+**Creating `scripts/maintenance/new_script.py`:**
+1. Create `docs/scripts/maintenance/new_script.md`
+2. Include all required sections
+3. Update `docs/scripts/maintenance/README.md` if needed
+
+### Auto-Documentation Helper Script
+Use `scripts/maintenance/create_doc.py` to generate documentation template:
+```bash
+python scripts/maintenance/create_doc.py src/voice/wakeword.py
+```
+This will:
+- Parse the Python file
+- Extract classes, functions, imports
+- Generate documentation template in `docs/src/voice/wakeword.md`
+- Fill in TODO sections that need manual completion

@@ -21,7 +21,8 @@ async def main() -> None:
     logger.info("=" * 60)
     logger.info("Zema AI Assistant Starting...")
     logger.info(f"Version: {__version__}")
-    logger.info(f"Environment: {settings.environment}")
+    logger.info(f"App Name: {settings.app_name}")
+    logger.info(f"Debug Mode: {settings.debug}")
     logger.info("=" * 60)
     
     # TODO: Initialize orchestrator and start main loop
