@@ -103,3 +103,28 @@ git push origin main
 4. **You MUST run:** `python scripts/auto_commit.py "Added configuration system"`
 5. Changes are automatically committed and pushed to GitHub
 6. Task is complete
+
+## Documentation & Progress Tracking (CRITICAL)
+
+### After Completing Every Task
+**CRITICAL RULE:** After completing ANY task, you MUST:
+1. Update documentation: `python scripts/update_docs.py "Task Name" TASK-ID complete`
+2. Verify progress tracking files are updated:
+   - `CHECKPOINT.md` - Quick resume point
+   - `docs/PROJECT_PROGRESS.md` - Detailed progress
+   - `docs/CODE_DOCUMENTATION.md` - Code documentation (if new code added)
+
+### Resuming Work in New Chat
+**When user says "go" or "continue":**
+1. Read `CHECKPOINT.md` to find last completed task
+2. Read `docs/PROJECT_PROGRESS.md` for detailed status
+3. Read `docs/guides/ZEMA-CURSOR-PROMPTS.md` for next prompt
+4. Execute the next prompt automatically
+5. Update all documentation files
+6. Commit changes
+
+### Documentation Files
+- `CHECKPOINT.md` - Quick resume point (always check this first)
+- `docs/PROJECT_PROGRESS.md` - Master progress tracker
+- `docs/CODE_DOCUMENTATION.md` - Detailed file-by-file documentation
+- `docs/ARCHITECTURE.md` - System architecture documentation

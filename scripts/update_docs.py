@@ -49,7 +49,7 @@ class DocumentationUpdater:
             print("⚠️  PROJECT_PROGRESS.md not found, skipping...")
             return
         
-        content = progress_file.read_text()
+        content = progress_file.read_text(encoding='utf-8')
         
         # Update "Last Updated" timestamp
         content = re.sub(
@@ -94,7 +94,7 @@ class DocumentationUpdater:
                     content
                 )
         
-        progress_file.write_text(content)
+        progress_file.write_text(content, encoding='utf-8')
         print(f"  ✓ Updated {progress_file.name}")
     
     def update_checkpoint(self, task_name: str, task_id: str, status: str) -> None:
@@ -105,7 +105,7 @@ class DocumentationUpdater:
             print("⚠️  CHECKPOINT.md not found, skipping...")
             return
         
-        content = checkpoint_file.read_text()
+        content = checkpoint_file.read_text(encoding='utf-8')
         
         # Update last completed
         if status == "complete":
@@ -134,7 +134,7 @@ class DocumentationUpdater:
             content
         )
         
-        checkpoint_file.write_text(content)
+        checkpoint_file.write_text(content, encoding='utf-8')
         print(f"  ✓ Updated {checkpoint_file.name}")
     
     def update_code_documentation(self) -> None:
@@ -164,7 +164,7 @@ class DocumentationUpdater:
                 "status": "Unknown"
             }
         
-        content = checkpoint_file.read_text()
+        content = checkpoint_file.read_text(encoding='utf-8')
         
         last_completed = re.search(r"\*\*📌 Last Completed:\*\* (.+?)\n", content)
         next_step = re.search(r"\*\*⏭️ Next Step:\*\* (.+?)\n", content)
