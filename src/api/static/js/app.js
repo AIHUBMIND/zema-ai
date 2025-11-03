@@ -358,7 +358,7 @@ $(document).ready(function() {
         loadInitialStatus();
         
         // Connect WebSocket for real-time updates
-        connectWebSocket();
+    connectWebSocket();
         
         // Setup navigation (uses jQuery internally)
         setupNavigation();

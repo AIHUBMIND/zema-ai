@@ -228,6 +228,17 @@
 
 ## 🔍 Recent Changes Log
 
+**2025-11-03 (v0.1.5):**
+- ✅ Added Phase 0.5 hardware verification settings to Settings Dashboard
+- ✅ Added audio device indices (input/output) to Voice & Audio tab
+- ✅ Added camera device path to Camera & Vision tab
+- ✅ Added Ollama URL to AI & Intelligence tab
+- ✅ Added hardware verification toggles to General tab
+- ✅ Updated USER_FACING_SETTINGS to include all Phase 0.5 settings
+- ✅ Updated Settings Dashboard JavaScript handlers
+- ✅ Updated version to v0.1.5
+- ✅ Updated all documentation files
+
 **2025-11-03 (v0.1.4):**
 - ✅ Completed Phase 0.5 Hardware Verification (NEW PHASE)
 - ✅ HARDWARE-001: Camera detection & PTZ test script (`scripts/verify_hardware.py`)

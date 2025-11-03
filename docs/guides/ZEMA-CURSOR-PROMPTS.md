@@ -1577,13 +1577,13 @@ python scripts/verify_hardware.py
 ```
 
 **Verification:**
-- [ ] Script runs without errors
-- [ ] Camera detected correctly
-- [ ] Video capture works
-- [ ] Test frame saved
-- [ ] PTZ controls checked
-- [ ] Script exits with code 0 on success
-- [ ] Committed: `python scripts/auto_commit.py "HARDWARE-001 - Camera detection and PTZ test"`
+- [x] Script runs without errors
+- [x] Camera detected correctly
+- [x] Video capture works
+- [x] Test frame saved
+- [x] PTZ controls checked
+- [x] Script exits with code 0 on success
+- [x] Committed: `python scripts/auto_commit.py "HARDWARE-001 - Camera detection and PTZ test"`
 
 ---
 
@@ -1677,6 +1677,16 @@ Script should output performance report and pass/fail.
 python scripts/verify_ollama.py
 ```
 
+**Verification:**
+- [x] Script runs without errors
+- [x] Ollama service check works
+- [x] Model listing works
+- [x] Model verification works
+- [x] Inference performance tested
+- [x] Performance targets met
+- [x] Script exits with code 0 on success
+- [x] Committed: `python scripts/auto_commit.py "HARDWARE-003 - Ollama health check"`
+
 ---
 
 ## HARDWARE-004: Model Download Verification
@@ -1742,9 +1752,19 @@ Also verify models exist before starting Zema.
 
 **Testing:**
 ```bash
-bash scripts/download_models.sh
+python scripts/download_models.py
 ls -lh data/models/
 ```
+
+**Verification:**
+- [x] Script runs without errors
+- [x] YOLO model downloaded successfully
+- [x] File integrity verified
+- [x] Model directories created
+- [x] Progress indication works
+- [x] Error handling works
+- [x] Script exits with code 0 on success
+- [x] Committed: `python scripts/auto_commit.py "HARDWARE-004 - Model download verification"`
 
 ---
 
@@ -1807,9 +1827,20 @@ Save results to data/performance_baseline.json
 
 **Testing:**
 ```bash
-python scripts/benchmark.py
+python scripts/maintenance/benchmark.py
 cat data/performance_baseline.json
 ```
+
+**Verification:**
+- [x] Script runs without errors
+- [x] CPU benchmark works
+- [x] Memory benchmark works
+- [x] Disk I/O benchmark works
+- [x] Thermal sensors checked
+- [x] Results saved to JSON
+- [x] System info collected
+- [x] Script exits with code 0 on success
+- [x] Committed: `python scripts/auto_commit.py "HARDWARE-005 - System performance baseline"`
 
 ---
 

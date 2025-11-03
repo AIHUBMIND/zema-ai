@@ -806,7 +806,7 @@ python scripts/maintenance/update_docs.py
 
 ---
 
-**Last Updated:** 2025-11-02  
-**Total Files Documented:** 47  
+**Last Updated:** 2025-11-03  
+**Total Files Documented:** 52  
 **Auto-Update Status:** ✅ Enabled
 
