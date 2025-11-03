@@ -11,13 +11,21 @@ ENV/
 
 # Data files
 data/db/*.db
+!data/db/.gitkeep
 data/logs/*.log
+!data/logs/.gitkeep
 data/models/*
 !data/models/.gitkeep
 data/backups/*
+!data/backups/.gitkeep
 data/audio/*
+!data/audio/.gitkeep
 data/images/*
+!data/images/.gitkeep
 data/exports/*
+!data/exports/.gitkeep
+data/config/*
+!data/config/.gitkeep
 
 # Environment
 .env
