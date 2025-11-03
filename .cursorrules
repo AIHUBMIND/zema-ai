@@ -1,0 +1,105 @@
+# Zema AI Personal Assistant - Cursor AI Rules
+
+## Project Overview
+- This is Zema AI Personal Assistant - privacy-first voice assistant
+- Runs on mini PC (BOSGAME P3 Lite) with Ubuntu 22.04
+- Uses Ollama for local LLM inference (Llama 13B) - 100% offline
+- Built with Python 3.11+, FastAPI, async/await
+- GitHub Repository: https://github.com/AIHUBMIND/zema-ai.git
+
+## Code Style
+- Follow PEP 8 Python style guide
+- Use type hints for all functions
+- Prefer async/await over sync code
+- Use Pydantic for data validation
+- Use docstrings for all public functions and classes
+
+## Architecture Principles
+- Offline-first: All core features work without internet
+- Privacy-first: All data stored locally
+- Modular: Each module has single responsibility
+- Async-first: Use async/await for I/O operations
+
+## Project Structure
+- `src/core/` - Core orchestrator, state management
+- `src/config/` - Configuration management (Pydantic)
+- `src/voice/` - Voice I/O, wake word, STT, TTS
+- `src/vision/` - Camera, vision processing
+- `src/ai/` - LLM client, context management
+- `src/tools/` - Personal assistant tools
+- `src/api/` - FastAPI server, routes
+- `src/utils/` - Utilities, logging, helpers
+
+## Best Practices
+- Use structured logging with structlog
+- Handle errors gracefully with proper exception handling
+- Validate all inputs with Pydantic models
+- Keep functions small and focused
+- Write tests for critical functionality
+- Document public APIs
+
+## Dependencies
+- FastAPI for web API
+- Pydantic for validation
+- SQLAlchemy for database
+- PyAudio for audio I/O
+- OpenCV for vision processing
+- Faster Whisper for STT
+- Ollama for LLM inference (local)
+
+## Git Workflow & Auto-Commit (CRITICAL)
+
+### After Completing Every Task
+**CRITICAL RULE:** After completing ANY task, feature, or change, you MUST:
+1. Run the auto-commit script: `python scripts/auto_commit.py "task description"`
+2. Use descriptive task descriptions (e.g., "Added configuration system", "Implemented voice module")
+3. The script will automatically:
+   - Stage all changes (`git add .`)
+   - Create commit with formatted message (`feat: task description - timestamp`)
+   - Push to GitHub (`origin/main` → https://github.com/AIHUBMIND/zema-ai.git)
+
+### Auto-Commit Command Format
+```bash
+python scripts/auto_commit.py "brief task description"
+```
+
+Examples:
+- `python scripts/auto_commit.py "Added configuration system"`
+- `python scripts/auto_commit.py "Implemented voice module"`
+- `python scripts/auto_commit.py "Fixed bug in API endpoint"`
+- `python scripts/auto_commit.py "Updated documentation"`
+
+### Commit Message Format
+The script automatically formats messages as:
+- `feat: task description - YYYY-MM-DD HH:MM:SS`
+
+### Task Completion Checklist
+When finishing any task, ALWAYS:
+- [ ] Code is complete and tested
+- [ ] Follows project style guidelines
+- [ ] Documentation updated if needed
+- [ ] **Run auto-commit:** `python scripts/auto_commit.py "task description"`
+- [ ] Verify push to GitHub was successful
+
+### Manual Commit (if auto-commit fails)
+If the auto-commit script fails, use manual commands:
+```bash
+git add .
+git commit -m "feat: task description"
+git push origin main
+```
+
+### Never Commit
+- `.env` files (contains secrets)
+- `venv/` folder (virtual environment)
+- `__pycache__/` directories
+- `*.log` files
+- `data/db/*.db` files (database files)
+
+## Workflow Example
+1. User asks: "Add configuration system"
+2. You implement the feature
+3. Code is complete
+4. **You MUST run:** `python scripts/auto_commit.py "Added configuration system"`
+5. Changes are automatically committed and pushed to GitHub
+6. Task is complete
