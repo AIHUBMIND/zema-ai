@@ -189,7 +189,7 @@ def main():
     task_id = sys.argv[2]
     status = sys.argv[3] if len(sys.argv) > 3 else "complete"
     
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).resolve().parent.parent.parent
     updater = DocumentationUpdater(project_root)
     updater.update_all(task_name, task_id, status)
 
