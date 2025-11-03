@@ -220,3 +220,90 @@ This will:
 - Extract classes, functions, imports
 - Generate documentation template in `docs/src/voice/wakeword.md`
 - Fill in TODO sections that need manual completion
+
+## Compliance Checking & Documentation Updates (CRITICAL)
+
+### After Completing Every Task
+**CRITICAL RULE:** After completing ANY task, feature, or change, you MUST:
+
+1. **Run compliance check:** `python scripts/maintenance/check_rules_compliance.py`
+   - Verifies code follows all .cursorrules requirements
+   - Checks for type hints, docstrings, project structure
+   - Identifies any violations
+
+2. **Fix any compliance issues** before proceeding
+
+3. **Update documentation** using `scripts/maintenance/update_docs.py`:
+   ```bash
+   python scripts/maintenance/update_docs.py "Task Name" TASK-ID complete
+   ```
+
+4. **Verify documentation files are updated:**
+   - `docs/progress/CHECKPOINT.md` - Quick resume point
+   - `docs/progress/PROJECT_PROGRESS.md` - Detailed progress
+   - `docs/architecture/CODE_DOCUMENTATION.md` - Code documentation (if new code added)
+   - `docs/architecture/ARCHITECTURE.md` - Architecture changes (if architecture changed)
+
+5. **Run auto-commit:** `python scripts/maintenance/auto_commit.py "task description"`
+
+### Compliance Check Command
+```bash
+# Run compliance check
+python scripts/maintenance/check_rules_compliance.py
+
+# This checks:
+# - Project structure (all required directories exist)
+# - Python code style (type hints, docstrings)
+# - Dependencies (requirements.txt)
+# - Git workflow (auto_commit.py exists)
+```
+
+### Documentation Update Command
+```bash
+# Update documentation after task completion
+python scripts/maintenance/update_docs.py "Task Name" TASK-ID complete
+
+# Examples:
+python scripts/maintenance/update_docs.py "SETUP-001" SETUP-001 complete
+python scripts/maintenance/update_docs.py "Smart Hybrid Mode" ARCH-001 complete
+```
+
+### Complete Task Completion Workflow
+When finishing any task, ALWAYS follow this sequence:
+
+1. [ ] Code is complete and tested
+2. [ ] Follows project style guidelines
+3. [ ] **Run compliance check:** `python scripts/maintenance/check_rules_compliance.py`
+4. [ ] Fix any compliance violations found
+5. [ ] **Update documentation:** `python scripts/maintenance/update_docs.py "Task Name" TASK-ID complete`
+6. [ ] Verify documentation files updated (CHECKPOINT.md, PROJECT_PROGRESS.md, etc.)
+7. [ ] **Run auto-commit:** `python scripts/maintenance/auto_commit.py "task description"`
+8. [ ] Verify push to GitHub was successful
+
+### Why This Matters
+- **Compliance checks** ensure code quality and consistency
+- **Documentation updates** keep progress tracking accurate
+- **Auto-commit** ensures changes are saved to GitHub
+- All three steps together maintain project integrity
+
+### Example Complete Workflow
+```bash
+# 1. Complete task (e.g., update architecture)
+# ... make changes ...
+
+# 2. Run compliance check
+python scripts/maintenance/check_rules_compliance.py
+
+# 3. Fix any issues found
+
+# 4. Update documentation
+python scripts/maintenance/update_docs.py "Smart Hybrid Mode Architecture" ARCH-001 complete
+
+# 5. Commit and push
+python scripts/maintenance/auto_commit.py "Updated architecture for Smart Hybrid Mode"
+```
+
+This ensures every task completion:
+- ✅ Code is compliant with rules
+- ✅ Documentation is up-to-date
+- ✅ Changes are committed to GitHub

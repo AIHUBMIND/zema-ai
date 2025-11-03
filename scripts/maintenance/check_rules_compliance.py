@@ -233,13 +233,20 @@ class RuleChecker:
     
     def check_git_workflow(self):
         """Check git workflow compliance"""
-        auto_commit_script = self.project_root / "scripts" / "auto_commit.py"
+        # Check for auto_commit.py in maintenance folder
+        auto_commit_script = self.project_root / "scripts" / "maintenance" / "auto_commit.py"
         if auto_commit_script.exists():
             print("  ✓ auto_commit.py script exists")
             self.stats["git_workflow_ok"] = 1
         else:
-            print("  ✗ auto_commit.py script missing")
-            self.violations["git_workflow"].append("Missing scripts/auto_commit.py")
+            # Also check old location
+            auto_commit_script_old = self.project_root / "scripts" / "auto_commit.py"
+            if auto_commit_script_old.exists():
+                print("  ✓ auto_commit.py script exists (old location)")
+                self.stats["git_workflow_ok"] = 1
+            else:
+                print("  ✗ auto_commit.py script missing")
+                self.violations["git_workflow"].append("Missing scripts/maintenance/auto_commit.py")
         
         # Check .gitignore
         gitignore = self.project_root / ".gitignore"
@@ -287,7 +294,9 @@ class RuleChecker:
 
 def main():
     """Main entry point"""
-    project_root = Path(__file__).parent.parent
+    # Get project root - script is in scripts/maintenance/, so go up 2 levels
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent.parent
     
     checker = RuleChecker(project_root)
     results = checker.check_all()
