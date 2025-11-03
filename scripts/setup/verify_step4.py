@@ -1,148 +1,134 @@
 #!/usr/bin/env python3
-"""Comprehensive STEP 4 verification script."""
-import sys
+"""
+Step 4 Verification: Test Directory Structure
+Verifies all required test directories and files exist
+"""
+
 from pathlib import Path
-import subprocess
 
-def print_section(title):
-    """Print section header."""
-    print("\n" + "=" * 60)
-    print(title)
+def verify_step4():
+    """Verify and fix Step 4: Test directory structure"""
+    
     print("=" * 60)
-
-def check_item(name, condition, details=""):
-    """Check and print item status."""
-    status = "✓" if condition else "✗"
-    print(f"{status} {name}")
-    if details:
-        print(f"  {details}")
-
-def main():
-    """Run STEP 4 verification."""
-    print_section("STEP 4: VERIFY SETUP")
-    print("\nChecking all requirements from ZEMA-GETTING-STARTED.md...")
+    print("SETUP-001 Step 4: Create Test Directory Structure")
+    print("=" * 60)
     
-    # 1. Virtual Environment
-    print_section("1. Virtual Environment")
-    venv_exists = Path("venv").exists()
-    venv_python = Path("venv/Scripts/python.exe")
-    check_item("venv/ folder exists", venv_exists)
+    # Required directories from SETUP-001 Step 4
+    required_dirs = [
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/hardware",
+        "tests/fixtures"
+    ]
     
-    if venv_exists:
-        try:
-            result = subprocess.run(
-                [str(venv_python), "--version"],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            if result.returncode == 0:
-                version = result.stdout.strip()
-                check_item("Python works", True, version)
-            else:
-                check_item("Python works", False)
-        except Exception as e:
-            check_item("Python works", False, str(e))
+    # Required files
+    required_files = [
+        "tests/__init__.py",
+        "tests/conftest.py"
+    ]
     
-    # 2. Dependencies
-    print_section("2. Dependencies")
-    required_packages = ["fastapi", "pydantic", "sqlalchemy", "uvicorn", "httpx"]
+    print("\n📁 Checking test directories...")
+    all_dirs_exist = True
     
-    try:
-        result = subprocess.run(
-            [str(venv_python), "-m", "pip", "list"],
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        installed = result.stdout.lower()
-        
-        for pkg in required_packages:
-            found = pkg.lower() in installed
-            check_item(f"{pkg} installed", found)
-    except Exception as e:
-        print(f"✗ Could not check packages: {e}")
-    
-    # 3. Git
-    print_section("3. Git Repository")
-    git_dir = Path(".git")
-    git_config = Path(".git/config")
-    
-    check_item("Git initialized", git_dir.exists())
-    
-    if git_config.exists():
-        config_content = git_config.read_text()
-        has_remote = "[remote" in config_content
-        check_item("Remote configured", has_remote)
-        if has_remote and "github.com/AIHUBMIND/zema-ai" in config_content:
-            check_item("GitHub remote correct", True, "https://github.com/AIHUBMIND/zema-ai.git")
-    
-    # 4. Project Structure
-    print_section("4. Project Structure")
-    
-    required_dirs = {
-        "src/": ["core", "config", "voice", "vision", "ai", "tools", "api", "utils"],
-        "data/": ["config", "logs", "db", "models", "backups"],
-    }
-    
-    for base_dir, subdirs in required_dirs.items():
-        base_path = Path(base_dir)
-        check_item(f"{base_dir} exists", base_path.exists())
-        
-        if base_path.exists():
-            for subdir in subdirs:
-                subdir_path = base_path / subdir
-                check_item(f"  {base_dir}{subdir}/", subdir_path.exists())
-    
-    check_item("scripts/ exists", Path("scripts").exists())
-    check_item("tests/ exists", Path("tests").exists())
-    
-    # 5. Configuration Files
-    print_section("5. Configuration Files")
-    config_files = {
-        ".gitignore": "Git ignore rules",
-        ".cursorrules": "Cursor AI rules",
-        "requirements.txt": "Python dependencies",
-        "README.md": "Project README",
-        "setup.py": "Setup script",
-    }
-    
-    for filename, description in config_files.items():
-        check_item(f"{filename} exists", Path(filename).exists(), description)
-    
-    # 6. Test Import
-    print_section("6. Code Verification")
-    try:
-        # Use test_setup.py which properly sets up paths
-        result = subprocess.run(
-            [str(venv_python), "scripts/test_setup.py"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            cwd=str(Path.cwd())
-        )
-        if result.returncode == 0:
-            check_item("Settings import works", True)
-            # Show key lines from output
-            for line in result.stdout.strip().split('\n'):
-                if '✓' in line or '✅' in line:
-                    print(f"  {line.strip()}")
+    for dir_path in required_dirs:
+        path = Path(dir_path)
+        if path.exists() and path.is_dir():
+            print(f"  ✅ {dir_path}")
         else:
-            check_item("Settings import works", False)
-            if result.stderr:
-                print(f"  Error: {result.stderr[:200]}")
-    except Exception as e:
-        check_item("Settings import works", False, str(e))
+            print(f"  ❌ Missing: {dir_path}")
+            all_dirs_exist = False
     
-    # Summary
-    print_section("VERIFICATION SUMMARY")
-    print("\n✅ All critical checks completed!")
-    print("\nNext steps:")
-    print("1. Review any items marked with ✗")
-    print("2. If all checks pass, proceed to STEP 5")
-    print("3. Start building with prompts from ZEMA-CURSOR-PROMPTS.md")
+    print("\n📄 Checking required files...")
+    missing_files = []
+    
+    for file_path in required_files:
+        path = Path(file_path)
+        if path.exists() and path.is_file():
+            print(f"  ✅ {file_path}")
+        else:
+            print(f"  ❌ Missing: {file_path}")
+            missing_files.append(file_path)
+    
+    print("\n📄 Checking __init__.py files in subdirectories...")
+    missing_init_files = []
+    
+    # Subdirectories that need __init__.py (excluding root tests/)
+    subdirs_needing_init = [
+        "tests/unit",
+        "tests/integration",
+        "tests/hardware",
+        "tests/fixtures"
+    ]
+    
+    for dir_path in subdirs_needing_init:
+        path = Path(dir_path)
+        init_path = path / "__init__.py"
+        if path.exists() and path.is_dir():
+            if init_path.exists():
+                print(f"  ✅ {init_path}")
+            else:
+                print(f"  ⚠️  Missing: {init_path}")
+                missing_init_files.append(init_path)
+    
+    # Create missing directories
+    created_dirs = []
+    for dir_path in required_dirs:
+        path = Path(dir_path)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(dir_path)
+            print(f"  ✅ Created: {dir_path}")
+    
+    # Create missing __init__.py files
+    created_init_files = []
+    for init_path in missing_init_files:
+        init_path.write_text('"""Test module for Zema AI."""\n')
+        created_init_files.append(str(init_path))
+        print(f"  ✅ Created: {init_path}")
+    
+    # Create missing files
+    created_files = []
+    for file_path in missing_files:
+        path = Path(file_path)
+        if file_path == "tests/__init__.py":
+            path.write_text('"""Test package for Zema AI."""\n')
+        elif file_path == "tests/conftest.py":
+            path.write_text('"""Pytest configuration and fixtures for Zema AI tests."""\n\nimport pytest\nfrom pathlib import Path\n\n# Pytest configuration\npytest_plugins = []\n')
+        created_files.append(file_path)
+        print(f"  ✅ Created: {file_path}")
+    
+    # Verify conftest.py has basic content
+    if Path("tests/conftest.py").exists():
+        conftest_content = Path("tests/conftest.py").read_text()
+        if "pytest" not in conftest_content.lower():
+            print("  ⚠️  Warning: conftest.py exists but may need pytest configuration")
+    
     print("\n" + "=" * 60)
+    print("VERIFICATION SUMMARY")
+    print("=" * 60)
+    
+    if created_dirs:
+        print(f"✅ Created {len(created_dirs)} missing directory(ies)")
+    if created_init_files:
+        print(f"✅ Created {len(created_init_files)} missing __init__.py file(s)")
+    if created_files:
+        print(f"✅ Created {len(created_files)} missing file(s)")
+    
+    if all_dirs_exist and not missing_files and not missing_init_files:
+        print("\n✅ All required directories exist")
+        print("✅ All required files exist")
+        print("✅ All __init__.py files present")
+        print("\n✅ Step 4 is COMPLETE!")
+        return True
+    else:
+        if created_dirs or created_init_files or created_files:
+            print("\n✅ Step 4 is now COMPLETE after fixes!")
+            return True
+        else:
+            print("\n⚠️  Step 4 has issues - please review above")
+            return False
 
 if __name__ == "__main__":
-    main()
-
+    success = verify_step4()
+    exit(0 if success else 1)
