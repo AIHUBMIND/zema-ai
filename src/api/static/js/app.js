@@ -678,10 +678,62 @@ function showSettingsMessage(message, type) {
 }
 
 function setupSettingsHandlers() {
-    // Save button
+    // Save All Settings button
     const saveBtn = document.getElementById('save-settings');
     if (saveBtn) {
         saveBtn.addEventListener('click', saveSettings);
+    }
+    
+    // Per-section save buttons
+    const saveGeneralBtn = document.getElementById('save-general-settings');
+    if (saveGeneralBtn) {
+        saveGeneralBtn.addEventListener('click', () => saveSectionSettings('general'));
+    }
+    
+    const saveVoiceBtn = document.getElementById('save-voice-settings');
+    if (saveVoiceBtn) {
+        saveVoiceBtn.addEventListener('click', () => saveSectionSettings('voice'));
+    }
+    
+    const saveCameraBtn = document.getElementById('save-camera-settings');
+    if (saveCameraBtn) {
+        saveCameraBtn.addEventListener('click', () => saveSectionSettings('camera'));
+    }
+    
+    const saveAiBtn = document.getElementById('save-ai-settings');
+    if (saveAiBtn) {
+        saveAiBtn.addEventListener('click', () => saveSectionSettings('ai'));
+    }
+    
+    const saveFeaturesBtn = document.getElementById('save-features-settings');
+    if (saveFeaturesBtn) {
+        saveFeaturesBtn.addEventListener('click', () => saveSectionSettings('features'));
+    }
+    
+    const saveApiKeysBtn = document.getElementById('save-api-keys-settings');
+    if (saveApiKeysBtn) {
+        saveApiKeysBtn.addEventListener('click', () => saveSectionSettings('api-keys'));
+    }
+    
+    // Hardware verification buttons
+    const testCameraBtn = document.getElementById('test-camera-btn');
+    if (testCameraBtn) {
+        testCameraBtn.addEventListener('click', () => runHardwareVerification('camera'));
+    }
+    
+    const testAudioBtn = document.getElementById('test-audio-btn');
+    if (testAudioBtn) {
+        testAudioBtn.addEventListener('click', () => runHardwareVerification('audio'));
+    }
+    
+    const testOllamaBtn = document.getElementById('test-ollama-btn');
+    if (testOllamaBtn) {
+        testOllamaBtn.addEventListener('click', () => runHardwareVerification('ollama'));
+    }
+    
+    const testAllHardwareBtn = document.getElementById('test-all-hardware-btn');
+    if (testAllHardwareBtn) {
+        testAllHardwareBtn.addEventListener('click', () => runHardwareVerification('all'));
     }
     
     // Real-time slider updates
@@ -730,3 +782,154 @@ function setupSettingsHandlers() {
         });
     }
 }
+
+// Save settings for a specific section
+async function saveSectionSettings(section) {
+    const allSettings = getSettingsFromForm();
+    const sectionSettings = {};
+    
+    // Map sections to their settings keys
+    const sectionMap = {
+        'general': ['privacy_mode', 'data_retention_days', 'log_level', 'hardware_verification_enabled', 
+                    'hardware_verification_camera_test', 'hardware_verification_audio_test', 'hardware_verification_ollama_test'],
+        'voice': ['wakeword_keywords', 'wakeword_sensitivity', 'stt_language', 'tts_voice', 'tts_speed',
+                  'audio_input_device_index', 'audio_output_device_index'],
+        'camera': ['camera_tracking', 'camera_gestures', 'camera_device_path'],
+        'ai': ['llm_model', 'llm_temperature', 'llm_max_tokens', 'llm_system_prompt', 'ollama_url'],
+        'features': ['feature_voice', 'feature_vision', 'feature_tasks', 'feature_ethiopian'],
+        'api-keys': ['gemini_api_key', 'elevenlabs_api_key']
+    };
+    
+    const keys = sectionMap[section] || [];
+    keys.forEach(key => {
+        if (allSettings.hasOwnProperty(key)) {
+            sectionSettings[key] = allSettings[key];
+        }
+    });
+    
+    if (Object.keys(sectionSettings).length === 0) {
+        showSettingsMessage('No settings to save in this section', 'warning');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/config/bulk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ updates: sectionSettings })
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success' || result.status === 'partial') {
+            showSettingsMessage(`${section.charAt(0).toUpperCase() + section.slice(1)} settings saved successfully!`, 'success');
+            await loadSettings();
+        } else {
+            showSettingsMessage('Error saving settings: ' + (result.message || 'Unknown error'), 'danger');
+        }
+    } catch (error) {
+        console.error('Error saving section settings:', error);
+        showSettingsMessage('Error saving settings: ' + error.message, 'danger');
+    }
+}
+
+// Run hardware verification test
+async function runHardwareVerification(testType) {
+    const statusElementId = testType === 'all' ? 'hardware-verification-status' : `${testType}-verification-status`;
+    const statusElement = document.getElementById(statusElementId);
+    const buttonId = testType === 'all' ? 'test-all-hardware-btn' : `test-${testType}-btn`;
+    const button = document.getElementById(buttonId);
+    
+    if (!statusElement) {
+        console.error('Status element not found:', statusElementId);
+        return;
+    }
+    
+    // Disable button and show loading
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+    }
+    
+    statusElement.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Running verification test...</div>';
+    
+    try {
+        const endpoint = testType === 'all' ? '/api/hardware/verify/all' : `/api/hardware/verify/${testType}`;
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            statusElement.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> <strong>Verification Passed!</strong><br>
+                    <small>${formatVerificationOutput(result.result || result)}</small>
+                </div>
+            `;
+        } else if (result.status === 'partial') {
+            const passed = result.summary.passed;
+            const failed = result.summary.failed;
+            statusElement.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Partial Success</strong><br>
+                    <small>Passed: ${passed}, Failed: ${failed}</small><br>
+                    <details class="mt-2"><summary>Details</summary><pre class="mt-2">${formatVerificationOutput(result)}</pre></details>
+                </div>
+            `;
+        } else {
+            statusElement.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-times-circle"></i> <strong>Verification Failed</strong><br>
+                    <small>${formatVerificationOutput(result.result || result)}</small>
+                </div>
+            `;
+        }
+        
+        // Auto-hide after 10 seconds
+        setTimeout(() => {
+            statusElement.innerHTML = '';
+        }, 10000);
+        
+    } catch (error) {
+        console.error('Error running verification:', error);
+        statusElement.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-times-circle"></i> <strong>Error</strong><br>
+                <small>${error.message}</small>
+            </div>
+        `;
+    } finally {
+        // Re-enable button
+        if (button) {
+            button.disabled = false;
+            const icon = testType === 'all' ? 'fa-vials' : testType === 'camera' ? 'fa-video' : testType === 'audio' ? 'fa-microphone' : 'fa-brain';
+            button.innerHTML = `<i class="fas ${icon}"></i> ${testType === 'all' ? 'Test All Now' : 'Test Now'}`;
+        }
+    }
+}
+
+function formatVerificationOutput(result) {
+    if (typeof result === 'string') {
+        return result;
+    }
+    
+    if (result.output) {
+        // Limit output to last 500 characters to avoid UI overflow
+        const output = result.output;
+        return output.length > 500 ? '...' + output.slice(-500) : output;
+    }
+    
+    if (result.tests) {
+        return JSON.stringify(result.tests, null, 2);
+    }
+    
+    return JSON.stringify(result, null, 2);
+}
+

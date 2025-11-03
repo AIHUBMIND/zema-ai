@@ -355,6 +355,13 @@
                                             <!-- General Tab -->
                                             <div class="tab-pane fade show active" id="general" role="tabpanel">
                                                 <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h5 class="mb-0">General Settings</h5>
+                                                        <button type="button" class="btn btn-sm btn-success" id="save-general-settings">
+                                                            <i class="fas fa-save"></i> Save General Settings
+                                                        </button>
+                                                    </div>
+                                                    
                                                     <div class="form-group">
                                                         <label for="privacy-mode">
                                                             <i class="fas fa-shield-alt"></i> Privacy Mode
@@ -393,43 +400,75 @@
                                                     <h5 class="mb-3">Hardware Verification</h5>
                                                     
                                                     <div class="form-group">
-                                                        <div class="custom-control custom-switch">
-                                                            <input type="checkbox" class="custom-control-input" id="hardware-verification-enabled" checked>
-                                                            <label class="custom-control-label" for="hardware-verification-enabled">
-                                                                <i class="fas fa-check-circle"></i> Enable Hardware Verification on Startup
-                                                            </label>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div class="flex-grow-1">
+                                                                <div class="custom-control custom-switch">
+                                                                    <input type="checkbox" class="custom-control-input" id="hardware-verification-enabled" checked>
+                                                                    <label class="custom-control-label" for="hardware-verification-enabled">
+                                                                        <i class="fas fa-check-circle"></i> Enable Hardware Verification on Startup
+                                                                    </label>
+                                                                </div>
+                                                                <small class="form-text text-muted">Run hardware verification checks when Zema starts</small>
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-info ml-3" id="test-all-hardware-btn">
+                                                                <i class="fas fa-vials"></i> Test All Now
+                                                            </button>
                                                         </div>
-                                                        <small class="form-text text-muted">Run hardware verification checks when Zema starts</small>
+                                                        <div id="hardware-verification-status" class="mt-2"></div>
                                                     </div>
                                                     
                                                     <div class="form-group">
-                                                        <div class="custom-control custom-switch">
-                                                            <input type="checkbox" class="custom-control-input" id="hardware-verification-camera-test" checked>
-                                                            <label class="custom-control-label" for="hardware-verification-camera-test">
-                                                                <i class="fas fa-video"></i> Run Camera Verification Test
-                                                            </label>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div class="flex-grow-1">
+                                                                <div class="custom-control custom-switch">
+                                                                    <input type="checkbox" class="custom-control-input" id="hardware-verification-camera-test" checked>
+                                                                    <label class="custom-control-label" for="hardware-verification-camera-test">
+                                                                        <i class="fas fa-video"></i> Run Camera Verification Test
+                                                                    </label>
+                                                                </div>
+                                                                <small class="form-text text-muted">Test camera detection and functionality during startup</small>
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-info ml-3" id="test-camera-btn">
+                                                                <i class="fas fa-video"></i> Test Now
+                                                            </button>
                                                         </div>
-                                                        <small class="form-text text-muted">Test camera detection and functionality during startup</small>
+                                                        <div id="camera-verification-status" class="mt-2"></div>
                                                     </div>
                                                     
                                                     <div class="form-group">
-                                                        <div class="custom-control custom-switch">
-                                                            <input type="checkbox" class="custom-control-input" id="hardware-verification-audio-test" checked>
-                                                            <label class="custom-control-label" for="hardware-verification-audio-test">
-                                                                <i class="fas fa-microphone"></i> Run Audio Verification Test
-                                                            </label>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div class="flex-grow-1">
+                                                                <div class="custom-control custom-switch">
+                                                                    <input type="checkbox" class="custom-control-input" id="hardware-verification-audio-test" checked>
+                                                                    <label class="custom-control-label" for="hardware-verification-audio-test">
+                                                                        <i class="fas fa-microphone"></i> Run Audio Verification Test
+                                                                    </label>
+                                                                </div>
+                                                                <small class="form-text text-muted">Test microphone and speaker during startup</small>
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-info ml-3" id="test-audio-btn">
+                                                                <i class="fas fa-microphone"></i> Test Now
+                                                            </button>
                                                         </div>
-                                                        <small class="form-text text-muted">Test microphone and speaker during startup</small>
+                                                        <div id="audio-verification-status" class="mt-2"></div>
                                                     </div>
                                                     
                                                     <div class="form-group">
-                                                        <div class="custom-control custom-switch">
-                                                            <input type="checkbox" class="custom-control-input" id="hardware-verification-ollama-test" checked>
-                                                            <label class="custom-control-label" for="hardware-verification-ollama-test">
-                                                                <i class="fas fa-brain"></i> Run Ollama Verification Test
-                                                            </label>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div class="flex-grow-1">
+                                                                <div class="custom-control custom-switch">
+                                                                    <input type="checkbox" class="custom-control-input" id="hardware-verification-ollama-test" checked>
+                                                                    <label class="custom-control-label" for="hardware-verification-ollama-test">
+                                                                        <i class="fas fa-brain"></i> Run Ollama Verification Test
+                                                                    </label>
+                                                                </div>
+                                                                <small class="form-text text-muted">Test Ollama connection and model availability during startup</small>
+                                                            </div>
+                                                            <button type="button" class="btn btn-sm btn-info ml-3" id="test-ollama-btn">
+                                                                <i class="fas fa-brain"></i> Test Now
+                                                            </button>
                                                         </div>
-                                                        <small class="form-text text-muted">Test Ollama connection and model availability during startup</small>
+                                                        <div id="ollama-verification-status" class="mt-2"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -437,6 +476,13 @@
                                             <!-- Voice & Audio Tab -->
                                             <div class="tab-pane fade" id="voice" role="tabpanel">
                                                 <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h5 class="mb-0">Voice & Audio Settings</h5>
+                                                        <button type="button" class="btn btn-sm btn-success" id="save-voice-settings">
+                                                            <i class="fas fa-save"></i> Save Voice Settings
+                                                        </button>
+                                                    </div>
+                                                    
                                                     <div class="form-group">
                                                         <label for="wakeword-keywords">
                                                             <i class="fas fa-hand-pointer"></i> Wake Word Keywords
@@ -470,14 +516,43 @@
                                                             <i class="fas fa-volume-up"></i> Text-to-Speech Voice
                                                         </label>
                                                         <select class="form-control" id="tts-voice">
-                                                            <option value="en_US-lessac-medium">Lessac (Male - US)</option>
-                                                            <option value="en_US-amy-medium">Amy (Female - US)</option>
-                                                            <option value="en_GB-alan-medium">Alan (Male - British)</option>
+                                                            <optgroup label="English - Male Voices">
+                                                                <option value="en_US-lessac-medium">Lessac (Male - US Standard)</option>
+                                                                <option value="en_US-northern_english_male-medium">Northern English (Male - UK)</option>
+                                                                <option value="en_GB-alan-medium">Alan (Male - British RP)</option>
+                                                                <option value="en_US-libritts-high">Libritts High (Male - US Formal)</option>
+                                                            </optgroup>
+                                                            <optgroup label="English - Female Voices">
+                                                                <option value="en_US-amy-medium">Amy (Female - US Standard)</option>
+                                                                <option value="en_US-kathleen-medium">Kathleen (Female - US Professional)</option>
+                                                                <option value="en_GB-alba-medium">Alba (Female - British RP)</option>
+                                                                <option value="en_US-libritts-high">Libritts High (Female - US Formal)</option>
+                                                            </optgroup>
+                                                            <optgroup label="Amharic (አማርኛ) - Male Voices">
+                                                                <option value="am_ET-male-medium">Amharic Male (Standard)</option>
+                                                                <option value="am_ET-male-young-medium">Amharic Male (Young Generation)</option>
+                                                                <option value="am_ET-male-elder-medium">Amharic Male (Elder Generation)</option>
+                                                            </optgroup>
+                                                            <optgroup label="Amharic (አማርኛ) - Female Voices">
+                                                                <option value="am_ET-female-medium">Amharic Female (Standard)</option>
+                                                                <option value="am_ET-female-young-medium">Amharic Female (Young Generation)</option>
+                                                                <option value="am_ET-female-elder-medium">Amharic Female (Elder Generation)</option>
+                                                            </optgroup>
+                                                            <optgroup label="Ethiopian Dialects - Male">
+                                                                <option value="ti_ET-male-medium">Tigrinya Male (ትግርኛ)</option>
+                                                                <option value="om_ET-male-medium">Oromo Male (Afaan Oromoo)</option>
+                                                                <option value="so_ET-male-medium">Somali Male (Soomaali)</option>
+                                                            </optgroup>
+                                                            <optgroup label="Ethiopian Dialects - Female">
+                                                                <option value="ti_ET-female-medium">Tigrinya Female (ትግርኛ)</option>
+                                                                <option value="om_ET-female-medium">Oromo Female (Afaan Oromoo)</option>
+                                                                <option value="so_ET-female-medium">Somali Female (Soomaali)</option>
+                                                            </optgroup>
                                                         </select>
                                                         <button type="button" class="btn btn-sm btn-secondary mt-2" id="test-voice-btn">
                                                             <i class="fas fa-play"></i> Test Voice
                                                         </button>
-                                                        <small class="form-text text-muted d-block mt-1">Preview the selected voice</small>
+                                                        <small class="form-text text-muted d-block mt-1">Preview the selected voice. Voices are organized by language, gender, and generation for better authenticity.</small>
                                                     </div>
                                                     
                                                     <div class="form-group">
@@ -512,6 +587,13 @@
                                             <!-- Camera & Vision Tab -->
                                             <div class="tab-pane fade" id="camera" role="tabpanel">
                                                 <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h5 class="mb-0">Camera & Vision Settings</h5>
+                                                        <button type="button" class="btn btn-sm btn-success" id="save-camera-settings">
+                                                            <i class="fas fa-save"></i> Save Camera Settings
+                                                        </button>
+                                                    </div>
+                                                    
                                                     <div class="form-group">
                                                         <div class="custom-control custom-switch">
                                                             <input type="checkbox" class="custom-control-input" id="camera-tracking">
@@ -548,6 +630,13 @@
                                             <!-- AI & Intelligence Tab -->
                                             <div class="tab-pane fade" id="ai" role="tabpanel">
                                                 <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h5 class="mb-0">AI & Intelligence Settings</h5>
+                                                        <button type="button" class="btn btn-sm btn-success" id="save-ai-settings">
+                                                            <i class="fas fa-save"></i> Save AI Settings
+                                                        </button>
+                                                    </div>
+                                                    
                                                     <div class="form-group">
                                                         <label for="llm-model">
                                                             <i class="fas fa-robot"></i> AI Model
@@ -600,6 +689,13 @@
                                             <!-- Features Tab -->
                                             <div class="tab-pane fade" id="features" role="tabpanel">
                                                 <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h5 class="mb-0">Feature Toggles</h5>
+                                                        <button type="button" class="btn btn-sm btn-success" id="save-features-settings">
+                                                            <i class="fas fa-save"></i> Save Features
+                                                        </button>
+                                                    </div>
+                                                    
                                                     <div class="form-group">
                                                         <div class="custom-control custom-switch">
                                                             <input type="checkbox" class="custom-control-input" id="feature-voice" checked>
@@ -645,6 +741,13 @@
                                             <!-- API Keys Tab -->
                                             <div class="tab-pane fade" id="api-keys" role="tabpanel">
                                                 <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                        <h5 class="mb-0">API Keys</h5>
+                                                        <button type="button" class="btn btn-sm btn-success" id="save-api-keys-settings">
+                                                            <i class="fas fa-save"></i> Save API Keys
+                                                        </button>
+                                                    </div>
+                                                    
                                                     <div class="alert alert-info">
                                                         <i class="fas fa-info-circle"></i> API keys are optional. Add them only if you want to use cloud features.
                                                     </div>
