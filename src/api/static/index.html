@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zema Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo">Zema AI</div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="active">Dashboard</a></li>
+                <li><a href="#settings">Settings</a></li>
+                <li><a href="#users">Users</a></li>
+                <li><a href="#history">History</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+            </ul>
+        </nav>
+        <main class="main-content">
+            <header class="header">
+                <h1>Dashboard</h1>
+                <button class="dark-mode-toggle">🌙</button>
+            </header>
+            <section id="dashboard" class="section active">
+                <div class="status-cards">
+                    <div class="card">
+                        <h3>Status</h3>
+                        <p class="status-indicator" id="status">Initializing...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
+
