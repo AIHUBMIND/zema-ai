@@ -646,6 +646,29 @@ async def stream_logs()
 - Sends new log entries as they're written to file
 - Allows dashboard to show live logs without polling
 
+#### `src/api/routes/qa.py`
+**Purpose:** QA testing endpoints for dashboard-triggered validation
+
+**What it does:**
+- Aggregates automated QA checks (`/api/qa/test/all`)
+- Provides focused test groups (buttons, sliders, save workflow, logging)
+- Verifies config manager updates and logging infrastructure
+- Returns structured pass/fail results with timestamps and details
+
+**Why it exists:**
+Enables one-click regression checks from the dashboard QA tab so non-technical users can validate buttons, sliders, save flows, and logging after each change.
+
+**Key Endpoints:**
+- `/api/qa/test/all` → Run entire QA suite (server-side validation)
+- `/api/qa/test/buttons` → Validate UI button presence (server-side checks)
+- `/api/qa/test/sliders` → Confirm slider configuration ranges
+- `/api/qa/test/save` → Ensure config manager updates succeed
+- `/api/qa/test/logging` → Confirm logging subsystem operational
+
+**Integration:**
+- QA dashboard tab consumes these endpoints and blends results with client-side DOM checks
+- TestClient (CLI or scripts) can run `/api/qa/test/all` for regression
+
 **Statistics Endpoint:**
 
 ```python

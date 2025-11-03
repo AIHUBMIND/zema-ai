@@ -789,6 +789,13 @@ async function saveSettings() {
         
         if (result.status === 'success' || result.status === 'partial') {
             showSettingsMessage('Settings saved successfully!', 'success');
+            showToast('All settings saved successfully', 'success');
+            
+            if (result.status === 'partial') {
+                const errorMsg = result.message || 'Some settings were not saved. Please check logs.';
+                showSettingsMessage(errorMsg, 'warning');
+                showToast(errorMsg, 'warning');
+            }
             
             // Reload settings to get updated values
             await loadSettings();
@@ -801,11 +808,71 @@ async function saveSettings() {
                 }));
             }
         } else {
-            showSettingsMessage('Error saving settings: ' + (result.message || 'Unknown error'), 'danger');
+            const errorMsg = 'Error saving settings: ' + (result.message || 'Unknown error');
+            showSettingsMessage(errorMsg, 'danger');
+            showToast(errorMsg, 'danger');
         }
     } catch (error) {
         console.error('Error saving settings:', error);
-        showSettingsMessage('Error saving settings: ' + error.message, 'danger');
+        const errorMsg = 'Error saving settings: ' + error.message;
+        showSettingsMessage(errorMsg, 'danger');
+        showToast(errorMsg, 'danger');
+    }
+}
+
+function showToast(message, type = 'info', options = {}) {
+    const container = document.getElementById('toast-container');
+    if (!container) {
+        console.warn('Toast container not found');
+        return;
+    }
+
+    const toast = document.createElement('div');
+    const delay = options.delay || 4000;
+
+    const typeClasses = {
+        success: 'bg-success text-white',
+        danger: 'bg-danger text-white',
+        warning: 'bg-warning text-dark',
+        info: 'bg-info text-white'
+    };
+
+    toast.className = `toast ${typeClasses[type] || typeClasses.info}`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    toast.style.minWidth = '250px';
+    toast.style.opacity = '0.95';
+    toast.innerHTML = `
+        <div class="toast-body d-flex align-items-center">
+            <span class="flex-grow-1">${message}</span>
+            <button type="button" class="ml-3 close text-white" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    const closeBtn = toast.querySelector('button');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            if (typeof $ !== 'undefined' && typeof $(toast).toast === 'function') {
+                $(toast).toast('hide');
+            } else {
+                toast.remove();
+            }
+        });
+    }
+
+    if (typeof $ !== 'undefined' && typeof $(toast).toast === 'function') {
+        $(toast).toast({ delay });
+        $(toast).toast('show');
+        toast.addEventListener('hidden.bs.toast', () => toast.remove());
+    } else {
+        // Fallback if Bootstrap toast plugin isn't available
+        toast.classList.add('show');
+        setTimeout(() => toast.remove(), delay);
     }
 }
 
@@ -1012,18 +1079,28 @@ async function saveSectionSettings(section) {
             const message = `${section.charAt(0).toUpperCase() + section.slice(1)} settings saved successfully!`;
             console.log('[SAVE] Success:', message);
             showSettingsMessage(message, 'success');
+            showToast(message, 'success');
+            
+            if (result.status === 'partial') {
+                const errorMsg = result.message || result.errors?.join(', ') || 'Some settings were not saved. Please check logs.';
+                showSettingsMessage(errorMsg, 'warning');
+                showToast(errorMsg, 'warning');
+            }
             
             // Reload settings to update original values and hide buttons
             await loadSettings();
         } else {
-            const errorMsg = result.message || result.errors?.join(', ') || 'Unknown error';
+            const errorMsg = 'Error saving settings: ' + (result.message || result.errors?.join(', ') || 'Unknown error');
             console.error('[SAVE] Save failed:', errorMsg);
-            showSettingsMessage('Error saving settings: ' + errorMsg, 'danger');
+            showSettingsMessage(errorMsg, 'danger');
+            showToast(errorMsg, 'danger');
         }
     } catch (error) {
         console.error('[SAVE] Exception saving section settings:', error);
         console.error('[SAVE] Error stack:', error.stack);
-        showSettingsMessage('Error saving settings: ' + error.message, 'danger');
+        const errorMsg = 'Error saving settings: ' + error.message;
+        showSettingsMessage(errorMsg, 'danger');
+        showToast(errorMsg, 'danger');
     }
 }
 
@@ -1551,6 +1628,35 @@ async function runClientSideButtonTests() {
             passed: true,
             message: 'Button found in DOM'
         });
+        
+        const sttSelect = document.getElementById('stt-language');
+        if (sttSelect) {
+            const originalValue = sttSelect.value;
+            const options = Array.from(sttSelect.options).map(opt => opt.value);
+            const alternateValue = options.find(v => v !== originalValue) || originalValue;
+            
+            if (alternateValue !== originalValue) {
+                sttSelect.value = alternateValue;
+                sttSelect.dispatchEvent(new Event('input', { bubbles: true }));
+                sttSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                const isVisible = window.getComputedStyle(saveVoiceBtn).display !== 'none';
+                results.push({
+                    test_name: 'Save Voice Settings Button Appears After Change',
+                    passed: isVisible,
+                    message: `Button display: ${window.getComputedStyle(saveVoiceBtn).display}`
+                });
+                
+                // Reset to original value
+                sttSelect.value = originalValue;
+                sttSelect.dispatchEvent(new Event('input', { bubbles: true }));
+                sttSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                if (typeof hideAllSaveButtons === 'function') {
+                    hideAllSaveButtons();
+                }
+            }
+        }
     } else {
         results.push({
             test_name: 'Save Voice Settings Button Exists',
