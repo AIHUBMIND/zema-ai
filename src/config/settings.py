@@ -68,7 +68,10 @@ class Settings(BaseSettings):
     camera_gestures: bool = Field(default=True, description="Enable gesture recognition")
     
     # LLM Settings
-    llm_model: str = Field(default="llama2:13b", description="Ollama model name")
+    llm_model: str = Field(
+        default="llama2:13b", 
+        description="Ollama model name. Recommended: qwen2.5:7b (multilingual), aya:8b (translation)"
+    )
     llm_temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="LLM temperature")
     llm_max_tokens: int = Field(default=512, ge=1, le=4096, description="Max tokens per response")
     llm_system_prompt: str = Field(

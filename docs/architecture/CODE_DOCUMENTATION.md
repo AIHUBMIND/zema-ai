@@ -1,7 +1,7 @@
 # ZEMA AI - Detailed Code Documentation
 
 **Purpose:** Beginner-friendly documentation explaining every file, function, and why it exists  
-**Last Updated:** 2025-11-02  
+**Last Updated:** 2025-11-03  
 **Auto-Updated:** Yes (after each task completion)  
 **Location:** `docs/architecture/CODE_DOCUMENTATION.md`
 
@@ -32,7 +32,7 @@ Zema AI is a privacy-first, offline voice assistant designed to run on a mini PC
 - **Python 3.11+** - Modern Python with async/await
 - **FastAPI** - Web framework for dashboard
 - **Pydantic** - Data validation and settings
-- **Ollama** - Local LLM inference
+- **Ollama** - Local LLM inference (supports Llama, Qwen, Aya, Mistral models)
 - **Faster Whisper** - Speech-to-text
 - **PyAudio** - Audio I/O
 - **OpenCV** - Computer vision

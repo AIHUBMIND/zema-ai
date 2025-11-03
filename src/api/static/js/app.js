@@ -879,6 +879,21 @@ function setupSettingsHandlers() {
         testAllHardwareBtn.addEventListener('click', () => runHardwareVerification('all'));
     }
     
+    // Model management button
+    const manageModelsBtn = document.getElementById('manage-models-btn');
+    if (manageModelsBtn) {
+        manageModelsBtn.addEventListener('click', () => {
+            $('#model-management-modal').modal('show');
+            loadModelManagement();
+        });
+    }
+    
+    // Model management modal handlers
+    const downloadRecommendedBtn = document.getElementById('download-recommended-btn');
+    if (downloadRecommendedBtn) {
+        downloadRecommendedBtn.addEventListener('click', () => downloadRecommendedModels());
+    }
+    
     // Real-time slider updates
     const sensitivitySlider = document.getElementById('wakeword-sensitivity');
     if (sensitivitySlider) {
@@ -1077,4 +1092,258 @@ function formatVerificationOutput(result) {
     
     return JSON.stringify(result, null, 2);
 }
+
+// Model Management Functions
+async function loadModelManagement() {
+    // Load available models
+    try {
+        const response = await fetch('/api/models/available');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            displayAvailableModels(data.models);
+        }
+    } catch (error) {
+        console.error('Error loading available models:', error);
+        document.getElementById('available-models-list').innerHTML = 
+            '<div class="alert alert-danger">Error loading models: ' + error.message + '</div>';
+    }
+    
+    // Load installed models
+    try {
+        const response = await fetch('/api/models/list');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            displayInstalledModels(data.models);
+        }
+    } catch (error) {
+        console.error('Error loading installed models:', error);
+        document.getElementById('installed-models-list').innerHTML = 
+            '<div class="alert alert-danger">Error loading installed models: ' + error.message + '</div>';
+    }
+}
+
+function displayAvailableModels(models) {
+    const container = document.getElementById('available-models-list');
+    
+    if (models.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No models available</div>';
+        return;
+    }
+    
+    let html = '';
+    
+    // Group by category
+    const categories = {
+        'Recommended': models.filter(m => m.recommended),
+        'Qwen Models': models.filter(m => m.id.startsWith('qwen')),
+        'Aya Models': models.filter(m => m.id.startsWith('aya')),
+        'Llama Models': models.filter(m => m.id.startsWith('llama')),
+        'Mistral Models': models.filter(m => m.id.startsWith('mistral') || m.id.startsWith('mixtral')),
+        'Other': models.filter(m => !m.id.startsWith('qwen') && !m.id.startsWith('aya') && 
+                                  !m.id.startsWith('llama') && !m.id.startsWith('mistral') && 
+                                  !m.id.startsWith('mixtral'))
+    };
+    
+    for (const [category, categoryModels] of Object.entries(categories)) {
+        if (categoryModels.length === 0) continue;
+        
+        html += `<h6 class="mt-3 mb-2">${category}</h6>`;
+        
+        categoryModels.forEach(model => {
+            const installedBadge = model.installed 
+                ? '<span class="badge badge-success ml-2"><i class="fas fa-check"></i> Installed</span>' 
+                : '';
+            const recommendedBadge = model.recommended 
+                ? '<span class="badge badge-warning ml-2"><i class="fas fa-star"></i> Recommended</span>' 
+                : '';
+            const sizeBadge = model.size_gb 
+                ? `<span class="badge badge-info ml-2">${model.size_gb} GB</span>` 
+                : '';
+            
+            html += `
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">${model.name}</h6>
+                            <small class="text-muted">${model.strength || 'No description'}</small><br>
+                            <small class="text-muted"><strong>Languages:</strong> ${Array.isArray(model.languages) ? model.languages.join(', ') : model.languages}</small>
+                            ${installedBadge}${recommendedBadge}${sizeBadge}
+                        </div>
+                        <div>
+                            ${model.installed 
+                                ? `<button class="btn btn-sm btn-danger" onclick="deleteModel('${model.id}')">
+                                      <i class="fas fa-trash"></i> Delete
+                                   </button>`
+                                : `<button class="btn btn-sm btn-primary" onclick="downloadModel('${model.id}')">
+                                      <i class="fas fa-download"></i> Download
+                                   </button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    container.innerHTML = html;
+}
+
+function displayInstalledModels(models) {
+    const container = document.getElementById('installed-models-list');
+    
+    if (models.length === 0) {
+        container.innerHTML = '<div class="alert alert-info">No models installed. Go to "Available Models" tab to download.</div>';
+        return;
+    }
+    
+    let html = '';
+    
+    models.forEach(model => {
+        const sizeBadge = model.size_gb 
+            ? `<span class="badge badge-info ml-2">${model.size_gb} GB</span>` 
+            : '';
+        
+        html += `
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${model.name}</h6>
+                        <small class="text-muted">${model.strength || 'No description'}</small><br>
+                        <small class="text-muted"><strong>Languages:</strong> ${Array.isArray(model.languages) ? model.languages.join(', ') : model.languages}</small>
+                        ${sizeBadge}
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-danger" onclick="deleteModel('${model.name}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+async function downloadModel(modelId) {
+    const progressDiv = document.getElementById('model-download-progress');
+    const statusDiv = document.getElementById('model-download-status');
+    const downloadBtn = window.event ? window.event.target.closest('button') : null;
+    
+    if (!downloadBtn) return;
+    
+    // Disable button and show progress
+    downloadBtn.disabled = true;
+    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+    progressDiv.style.display = 'block';
+    statusDiv.textContent = `Downloading ${modelId}... This may take several minutes.`;
+    
+    try {
+        const response = await fetch(`/api/models/download/${modelId}`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success' || result.status === 'already_installed') {
+            statusDiv.textContent = result.message || 'Download complete!';
+            progressDiv.style.display = 'none';
+            
+            // Reload models
+            await loadModelManagement();
+            
+            // Show success message
+            showSettingsMessage(`Model ${modelId} downloaded successfully!`, 'success');
+        } else {
+            throw new Error(result.message || 'Download failed');
+        }
+    } catch (error) {
+        console.error('Error downloading model:', error);
+        statusDiv.textContent = 'Error: ' + error.message;
+        showSettingsMessage('Error downloading model: ' + error.message, 'danger');
+    } finally {
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
+        setTimeout(() => {
+            progressDiv.style.display = 'none';
+        }, 3000);
+    }
+}
+
+async function deleteModel(modelId) {
+    if (!confirm(`Are you sure you want to delete ${modelId}? This cannot be undone.`)) {
+        return;
+    }
+    
+    const deleteBtn = window.event ? window.event.target.closest('button') : null;
+    if (!deleteBtn) return;
+    
+    deleteBtn.disabled = true;
+    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+    
+    try {
+        const response = await fetch(`/api/models/${modelId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showSettingsMessage(`Model ${modelId} deleted successfully!`, 'success');
+            await loadModelManagement();
+        } else {
+            throw new Error(result.message || 'Delete failed');
+        }
+    } catch (error) {
+        console.error('Error deleting model:', error);
+        showSettingsMessage('Error deleting model: ' + error.message, 'danger');
+    } finally {
+        deleteBtn.disabled = false;
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
+    }
+}
+
+async function downloadRecommendedModels() {
+    const btn = document.getElementById('download-recommended-btn');
+    const progressDiv = document.getElementById('model-download-progress');
+    const statusDiv = document.getElementById('model-download-status');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
+    progressDiv.style.display = 'block';
+    statusDiv.textContent = 'Downloading recommended models (Qwen 2.5 7B + Aya 8B)... This may take 10-20 minutes.';
+    
+    try {
+        const response = await fetch('/api/models/download-recommended', {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success' || result.status === 'partial') {
+            statusDiv.textContent = `Downloaded ${result.downloaded} of ${result.total} models.`;
+            showSettingsMessage(`Downloaded ${result.downloaded} recommended model(s)!`, 'success');
+            await loadModelManagement();
+        } else {
+            throw new Error(result.message || 'Download failed');
+        }
+    } catch (error) {
+        console.error('Error downloading recommended models:', error);
+        statusDiv.textContent = 'Error: ' + error.message;
+        showSettingsMessage('Error downloading models: ' + error.message, 'danger');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-star"></i> Download Recommended (Qwen 2.5 7B + Aya 8B)';
+        setTimeout(() => {
+            progressDiv.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// Make functions globally available for onclick handlers
+window.downloadModel = downloadModel;
+window.deleteModel = deleteModel;
+
 

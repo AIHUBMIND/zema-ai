@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-11-03  
 **Current Phase:** Phase 0 - Project Setup  
-**Current Step:** Phase 0.5 - Hardware Verification ✅ COMPLETE  
+**Current Step:** Model Management System ✅ COMPLETE (v0.1.8)  
 **Next Step:** Phase 1 - Voice Interaction
 
 ---
@@ -249,6 +249,43 @@
 - ✅ All scripts handle Docker/Windows environments gracefully
 - ✅ Updated version to v0.1.4
 - ✅ Updated all documentation files
+
+**2025-11-03 (v0.1.8):** - Model Management System
+- ✅ Added Qwen 2.5 models (3B, 7B, 14B, 72B) to Settings Dashboard
+- ✅ Added Aya models (8B, 35B) for translation tasks
+- ✅ Added Mistral models (7B, 8x7B) for fast multilingual
+- ✅ Created model management API (`src/api/routes/models.py`)
+- ✅ Added Model Management modal UI in Settings Dashboard
+- ✅ One-click download for recommended models (Qwen 2.5 7B + Aya 8B)
+- ✅ Model download progress indicator
+- ✅ Updated LLM dropdown with optgroups for better organization
+- ✅ Created Hugging Face model recommendations guide (`docs/guides/HUGGINGFACE_MODEL_RECOMMENDATIONS.md`)
+- ✅ Updated version to v0.1.8
+- ✅ Updated all documentation files
+
+**2025-11-03 (v0.1.7):** - Dynamic Save Button Visibility
+- ✅ Save buttons hidden by default
+- ✅ Buttons appear when settings are changed
+- ✅ Buttons disappear after successful save
+- ✅ Per-section save buttons show only when that section has changes
+- ✅ Updated version to v0.1.7
+
+**2025-11-03 (v0.1.6):** - Settings Dashboard Enhancements
+- ✅ On-demand hardware verification buttons
+- ✅ Per-section save buttons
+- ✅ Enhanced TTS voice selection (Ethiopian/Amharic voices)
+- ✅ Real-time verification status display
+- ✅ Updated version to v0.1.6
+
+**2025-11-03 (v0.1.5):** - Phase 0.5 Hardware Verification + Settings Dashboard Integration
+- ✅ Hardware verification scripts (`verify_hardware.py`, `verify_audio.py`, `verify_ollama.py`)
+- ✅ All hardware verification settings added to Settings Dashboard
+- ✅ On-demand verification buttons
+- ✅ Updated version to v0.1.5
+
+**2025-11-03 (v0.1.4):** - Phase 0.5 Hardware Verification
+- ✅ Hardware verification scripts created
+- ✅ Updated version to v0.1.4
 
 **2025-11-03 (v0.1.3):**
 - ✅ Added Settings Dashboard UI (NEW FEATURE)

@@ -12,7 +12,7 @@ import uvicorn
 import asyncio
 from pathlib import Path
 from src.config.settings import Settings
-from src.api.routes import logs, system, config, users, conversations, voice, vision, hardware
+from src.api.routes import logs, system, config, users, conversations, voice, vision, hardware, models
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,7 @@ app.include_router(conversations.router)
 app.include_router(voice.router)
 app.include_router(vision.router)
 app.include_router(hardware.router)
+app.include_router(models.router)
 
 # CORS middleware
 app.add_middleware(
