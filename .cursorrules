@@ -108,11 +108,39 @@ git push origin main
 
 ### After Completing Every Task
 **CRITICAL RULE:** After completing ANY task, you MUST:
-1. Update documentation: `python scripts/update_docs.py "Task Name" TASK-ID complete`
+1. Update documentation: `python scripts/maintenance/update_docs.py "Task Name" TASK-ID complete`
 2. Verify progress tracking files are updated:
    - `docs/progress/CHECKPOINT.md` - Quick resume point
    - `docs/progress/PROJECT_PROGRESS.md` - Detailed progress
    - `docs/architecture/CODE_DOCUMENTATION.md` - Code documentation (if new code added)
+
+### Documentation File Management (CRITICAL)
+**NEVER CREATE NEW MARKDOWN FILES UNLESS ABSOLUTELY NECESSARY**
+
+**RULE:** Always append/update existing files instead of creating new ones:
+- ✅ **APPEND** to existing documentation files
+- ✅ **UPDATE** existing sections in files
+- ✅ **CHECK** if similar information exists before creating
+- ❌ **DO NOT** create new .md files for similar content
+- ❌ **DO NOT** duplicate information across files
+
+**Use these existing files:**
+- Progress updates → `docs/progress/PROJECT_PROGRESS.md` (append to "Recent Changes Log")
+- Code documentation → `docs/architecture/CODE_DOCUMENTATION.md` (append new sections)
+- Architecture changes → `docs/architecture/ARCHITECTURE.md` (update sections)
+- Setup notes → `docs/setup/` (update appropriate existing file)
+- Git workflow → `docs/git/` (update appropriate existing file)
+- Structure info → `docs/README.md` (update structure section)
+
+**Only create new files if:**
+- It's a completely new category that doesn't exist
+- It's a new guide from `docs/guides/` folder
+- It's a new hardware-specific documentation
+
+**Before creating any .md file:**
+1. Check if similar information exists in existing files
+2. If yes, append/update that file instead
+3. If no, confirm it's truly a new category before creating
 
 ### Resuming Work in New Chat
 **When user says "go" or "continue":**
