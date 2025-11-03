@@ -125,8 +125,22 @@ def auto_commit(task_description=""):
         print("2. Or add to PATH: $env:Path += ';C:\\Program Files\\Git\\cmd'")
         return False
     
-    print(f"✓ Using Git: {git_cmd}")
-    print()
+    # Set branch name to main (if currently on master)
+    current_branch_result = run_git_command(["branch", "--show-current"], "Checking current branch")
+    if current_branch_result:
+        # Try to get current branch name
+        try:
+            result = subprocess.run(
+                full_cmd if isinstance(git_cmd, str) and git_cmd.endswith(".exe") else ["git"] + ["branch", "--show-current"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            current_branch = result.stdout.strip()
+            if current_branch == "master":
+                run_git_command(["branch", "-M", BRANCH], f"Renaming branch to '{BRANCH}'")
+        except:
+            pass
     
     # Check if there are changes
     if not check_changes():
