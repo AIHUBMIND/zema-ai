@@ -15,13 +15,13 @@ We use **Semantic Versioning** format: `MAJOR.MINOR.PATCH`
 ### Version Strategy for Zema AI
 
 #### Phase 0: Project Setup (v0.1.0 - v0.9.0)
-- **v0.1.0**: ✅ SETUP-001 - Project Structure Foundation
+- **v0.1.0**: ✅ SETUP-001 - Project Structure Foundation + Smart Hybrid Mode Architecture Design
 - **v0.2.0**: SETUP-002 - Configuration System
 - **v0.3.0**: SETUP-003 - Logging System
 - **v0.4.0**: Hardware verification (camera, audio)
 - **v0.5.0**: Voice module (STT, TTS, wake word)
 - **v0.6.0**: Vision module (camera, PTZ, gestures)
-- **v0.7.0**: AI module (LLM client, context)
+- **v0.7.0**: AI module (LLM client with Smart Hybrid Mode - connectivity detection + online/local switching)
 - **v0.8.0**: API server and dashboard
 - **v0.9.0**: Integration and testing
 
@@ -48,6 +48,7 @@ We use **Semantic Versioning** format: `MAJOR.MINOR.PATCH`
 - ✅ Configuration system foundation
 - ✅ Logging system foundation
 - ✅ Documentation structure
+- ✅ **Smart Hybrid Mode Architecture Design** - Auto-detects Internet connectivity and switches between online services (preferred) and local LLM (fallback)
 
 **To Revert to This State:**
 ```bash
@@ -277,5 +278,7 @@ git push origin v0.1.0
 
 **Last Updated:** 2025-11-03  
 **Current Version:** v0.1.0  
-**Status:** ✅ Project structure foundation complete
+**Status:** ✅ Project structure foundation complete + Smart Hybrid Mode architecture designed
+
+**Architecture Note:** v0.1.0 includes the Smart Hybrid Mode architecture design. This enables automatic Internet connectivity detection and seamless switching between online services (preferred) and local LLM (fallback). Implementation will occur in future versions (v0.7.0+).
 

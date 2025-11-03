@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "zema-ai"
 version = "0.1.0"
-description = "Privacy-first voice assistant for mini PC"
+description = "Smart hybrid voice assistant for mini PC - auto-detects Internet and switches between online services and local LLM"
 requires-python = ">=3.11"
 dependencies = []
 
