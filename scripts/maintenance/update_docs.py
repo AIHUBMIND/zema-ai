@@ -43,7 +43,7 @@ class DocumentationUpdater:
     
     def update_progress_tracker(self, task_name: str, task_id: str, status: str) -> None:
         """Update PROJECT_PROGRESS.md"""
-        progress_file = self.docs_root / "PROJECT_PROGRESS.md"
+        progress_file = self.docs_root / "progress" / "PROJECT_PROGRESS.md"
         
         if not progress_file.exists():
             print("⚠️  PROJECT_PROGRESS.md not found, skipping...")
@@ -99,7 +99,7 @@ class DocumentationUpdater:
     
     def update_checkpoint(self, task_name: str, task_id: str, status: str) -> None:
         """Update CHECKPOINT.md"""
-        checkpoint_file = self.project_root / "CHECKPOINT.md"
+        checkpoint_file = self.docs_root / "progress" / "CHECKPOINT.md"
         
         if not checkpoint_file.exists():
             print("⚠️  CHECKPOINT.md not found, skipping...")
@@ -139,7 +139,7 @@ class DocumentationUpdater:
     
     def update_code_documentation(self) -> None:
         """Update CODE_DOCUMENTATION.md with new files"""
-        doc_file = self.docs_root / "CODE_DOCUMENTATION.md"
+        doc_file = self.docs_root / "architecture" / "CODE_DOCUMENTATION.md"
         
         if not doc_file.exists():
             print("⚠️  CODE_DOCUMENTATION.md not found, skipping...")
@@ -155,7 +155,7 @@ class DocumentationUpdater:
     
     def get_current_checkpoint(self) -> Dict[str, str]:
         """Read current checkpoint information"""
-        checkpoint_file = self.project_root / "CHECKPOINT.md"
+        checkpoint_file = self.docs_root / "progress" / "CHECKPOINT.md"
         
         if not checkpoint_file.exists():
             return {

@@ -117,7 +117,7 @@
 |----------|--------|--------------|-------------|
 | `CODE_DOCUMENTATION.md` | 🟡 Initial | 2025-11-02 | ✅ Yes |
 | `ARCHITECTURE.md` | 🟡 Initial | 2025-11-02 | ✅ Yes |
-| `CHECKPOINT.md` | ✅ Current | 2025-11-02 | ✅ Yes |
+| `docs/progress/CHECKPOINT.md` | ✅ Current | 2025-11-02 | ✅ Yes |
 
 ---
 
@@ -127,7 +127,7 @@
 2. **Execute** SETUP-002 prompt instructions
 3. **Update** this progress file
 4. **Update** `CODE_DOCUMENTATION.md` with new code
-5. **Update** `CHECKPOINT.md` with resume point
+5. **Update** `docs/progress/CHECKPOINT.md` with resume point
 6. **Commit** all changes
 7. **Report** completion
 
@@ -148,9 +148,9 @@
 - Notes added for blockers or issues
 
 ### For Documentation:
-- See `docs/CODE_DOCUMENTATION.md` for detailed code explanations
-- See `docs/ARCHITECTURE.md` for system design
-- See `CHECKPOINT.md` for quick resume reference
+- See `docs/architecture/CODE_DOCUMENTATION.md` for detailed code explanations
+- See `docs/architecture/ARCHITECTURE.md` for system design
+- See `docs/progress/CHECKPOINT.md` for quick resume reference
 
 ---
 
@@ -167,7 +167,7 @@
 ## 💡 Tips for AI Assistant
 
 When resuming work:
-1. Read `CHECKPOINT.md` first (quick reference)
+1. Read `docs/progress/CHECKPOINT.md` first (quick reference)
 2. Read this file for detailed status
 3. Read `docs/guides/ZEMA-CURSOR-PROMPTS.md` for the next prompt
 4. Execute the prompt fully
@@ -176,7 +176,7 @@ When resuming work:
 7. Commit changes
 
 **Always check these files when starting:**
-- `CHECKPOINT.md` - Quick resume point
+- `docs/progress/CHECKPOINT.md` - Quick resume point
 - `docs/PROJECT_PROGRESS.md` - This file (detailed status)
 - `docs/guides/ZEMA-CURSOR-PROMPTS.md` - Next prompt to execute
 

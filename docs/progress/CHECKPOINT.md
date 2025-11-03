@@ -24,10 +24,10 @@
 **Git:** ✅ All changes committed
 
 **Key Files:**
-- Progress Tracker: `docs/PROJECT_PROGRESS.md`
-- Code Docs: `docs/CODE_DOCUMENTATION.md`
+- Progress Tracker: `docs/progress/PROJECT_PROGRESS.md`
+- Code Docs: `docs/architecture/CODE_DOCUMENTATION.md`
 - Prompts: `docs/guides/ZEMA-CURSOR-PROMPTS.md`
-- Checkpoint: `CHECKPOINT.md` (this file)
+- Checkpoint: `docs/progress/CHECKPOINT.md` (this file)
 
 ---
 
