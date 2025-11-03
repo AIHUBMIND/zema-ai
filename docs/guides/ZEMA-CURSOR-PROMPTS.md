@@ -2047,27 +2047,72 @@ class AudioIO:
 ```
 
 **Expected Output:**
-- `src/voice/audio_io.py` with AudioIO class
+- `src/voice/audio_io.py` with complete AudioIO class
 - Device detection and selection
 - Input/output stream management
 - Async recording and playback
+- Error handling and recovery
 
 **Testing:**
 ```python
-# Test audio I/O
+# Test 1: Import and initialize
 from src.voice.audio_io import AudioIO
 from src.config.settings import Settings
 
 settings = Settings()
 audio = AudioIO(settings)
 
-# Test recording
-audio_data = await audio.record_audio(2.0)  # 2 seconds
-print(f"Recorded {len(audio_data)} samples")
+# Test 2: List devices
+devices = audio.list_devices()
+print(f"Input devices: {len(devices['input'])}")
+print(f"Output devices: {len(devices['output'])}")
 
-# Test playback
-audio.play_audio(audio_data, settings.audio_sample_rate)
+# Test 3: Record audio
+import asyncio
+async def test_record():
+    audio_data = await audio.record_audio(2.0)  # 2 seconds
+    print(f"Recorded {len(audio_data)} samples")
+    assert len(audio_data) > 0
+    return audio_data
+
+# Test 4: Play audio
+async def test_play():
+    # Generate test tone
+    import numpy as np
+    sample_rate = 22050
+    duration = 1.0
+    frequency = 440  # A4 note
+    
+    t = np.linspace(0, duration, int(sample_rate * duration))
+    audio_data = np.sin(2 * np.pi * frequency * t)
+    audio_data = (audio_data * 0.3 * 32767).astype(np.int16)
+    
+    await audio.play_audio_async(audio_data, sample_rate)
+    print("Played test tone")
+
+# Test 5: Stream callback
+def test_callback(audio_data, channels, sample_rate):
+    print(f"Received {len(audio_data)} bytes at {sample_rate}Hz")
+
+audio.start_input_stream(test_callback)
+import time
+time.sleep(2)  # Listen for 2 seconds
+audio.stop_input_stream()
+
+# Test 6: Cleanup
+audio.cleanup()
+print("All tests passed")
 ```
+
+**Verification:**
+- [ ] AudioIO initializes successfully
+- [ ] Devices detected correctly
+- [ ] Recording works (captures audio)
+- [ ] Playback works (hears audio)
+- [ ] Stream callback works
+- [ ] Error handling works
+- [ ] Cleanup works
+- [ ] Committed: `python scripts/auto_commit.py "VOICE-001 - Audio I/O module"`
 
 ---
 
