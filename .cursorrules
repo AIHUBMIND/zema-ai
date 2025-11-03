@@ -277,14 +277,27 @@ When finishing any task, ALWAYS follow this sequence:
 4. [ ] Fix any compliance violations found
 5. [ ] **Update documentation:** `python scripts/maintenance/update_docs.py "Task Name" TASK-ID complete`
 6. [ ] Verify documentation files updated (CHECKPOINT.md, PROJECT_PROGRESS.md, etc.)
-7. [ ] **Run auto-commit:** `python scripts/maintenance/auto_commit.py "task description"`
-8. [ ] Verify push to GitHub was successful
+7. [ ] **Update verification checkboxes in ZEMA-CURSOR-PROMPTS.md** (change `- [ ]` to `- [x]`)
+8. [ ] **Run auto-commit:** `python scripts/maintenance/auto_commit.py "task description"`
+9. [ ] Verify push to GitHub was successful
+10. [ ] **Display verification checklist** showing all completed items in your response
+
+**CRITICAL: Final Step - Display Verification Checklist**
+After completing any task, you MUST display the verification checklist in your completion response showing:
+- Task name and status (✅ COMPLETE)
+- All verification items marked as complete
+- Completion date
+- Summary of what was accomplished
+
+This helps the user see exactly what was verified and completed.
 
 ### Why This Matters
 - **Compliance checks** ensure code quality and consistency
 - **Documentation updates** keep progress tracking accurate
+- **Verification checkboxes** keep prompt file synchronized with actual progress
+- **Display verification checklist** provides clear completion summary to user
 - **Auto-commit** ensures changes are saved to GitHub
-- All three steps together maintain project integrity
+- All steps together maintain project integrity
 
 ### Example Complete Workflow
 ```bash
