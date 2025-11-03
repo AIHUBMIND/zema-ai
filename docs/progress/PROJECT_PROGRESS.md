@@ -2,16 +2,16 @@
 
 **Last Updated:** 2025-11-03  
 **Current Phase:** Phase 0 - Project Setup  
-**Current Step:** Settings Dashboard ✅ COMPLETE  
-**Next Step:** Phase 0.5 - Hardware Verification
+**Current Step:** Phase 0.5 - Hardware Verification ✅ COMPLETE  
+**Next Step:** Phase 1 - Voice Interaction
 
 ---
 
 ## 🎯 Quick Resume Point
 
 **Status:** ✅ Ready to continue  
-**Last Completed:** Settings Dashboard (v0.1.3)  
-**Next Action:** Execute Phase 0.5 Hardware Verification from `docs/guides/ZEMA-CURSOR-PROMPTS.md`
+**Last Completed:** Phase 0.5 Hardware Verification (v0.1.4)  
+**Next Action:** Execute Phase 1 Voice Interaction from `docs/guides/ZEMA-CURSOR-PROMPTS.md`
 
 **To Resume:** Say "go" or "continue" and I'll execute the next step automatically.
 
@@ -227,6 +227,17 @@
 ---
 
 ## 🔍 Recent Changes Log
+
+**2025-11-03 (v0.1.4):**
+- ✅ Completed Phase 0.5 Hardware Verification (NEW PHASE)
+- ✅ HARDWARE-001: Camera detection & PTZ test script (`scripts/verify_hardware.py`)
+- ✅ HARDWARE-002: Audio device verification script (`scripts/verify_audio.py`)
+- ✅ HARDWARE-003: Ollama health check script (`scripts/verify_ollama.py`)
+- ✅ HARDWARE-004: Model download verification script (`scripts/download_models.py`)
+- ✅ HARDWARE-005: System performance baseline script (`scripts/maintenance/benchmark.py`)
+- ✅ All scripts handle Docker/Windows environments gracefully
+- ✅ Updated version to v0.1.4
+- ✅ Updated all documentation files
 
 **2025-11-03 (v0.1.3):**
 - ✅ Added Settings Dashboard UI (NEW FEATURE)
