@@ -430,6 +430,9 @@ $(document).ready(function() {
 // Settings Management Functions
 let currentSettings = {};
 
+// Store original settings values for change detection
+let originalSettings = {};
+
 async function loadSettings() {
     try {
         const response = await fetch('/api/config/user-facing');
@@ -454,6 +457,20 @@ function populateSettingsForm(settings) {
     }
     if (settings.log_level) {
         document.getElementById('log-level').value = settings.log_level;
+    }
+    
+    // Phase 0.5: Hardware verification settings
+    if (settings.hardware_verification_enabled !== undefined) {
+        document.getElementById('hardware-verification-enabled').checked = settings.hardware_verification_enabled;
+    }
+    if (settings.hardware_verification_camera_test !== undefined) {
+        document.getElementById('hardware-verification-camera-test').checked = settings.hardware_verification_camera_test;
+    }
+    if (settings.hardware_verification_audio_test !== undefined) {
+        document.getElementById('hardware-verification-audio-test').checked = settings.hardware_verification_audio_test;
+    }
+    if (settings.hardware_verification_ollama_test !== undefined) {
+        document.getElementById('hardware-verification-ollama-test').checked = settings.hardware_verification_ollama_test;
     }
     
     // Voice & Audio
@@ -551,6 +568,132 @@ function populateSettingsForm(settings) {
     if (settings.hardware_verification_ollama_test !== undefined) {
         document.getElementById('hardware-verification-ollama-test').checked = settings.hardware_verification_ollama_test;
     }
+    
+    // Set up change detection after populating form
+    setupChangeDetection();
+}
+
+// Setup change detection for all form fields
+function setupChangeDetection() {
+    // Get all form inputs
+    const inputs = document.querySelectorAll('#settings input, #settings select, #settings textarea');
+    
+    inputs.forEach(input => {
+        // Remove existing listeners (if any) and add new ones
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        // Add change listener
+        newInput.addEventListener('change', checkForChanges);
+        newInput.addEventListener('input', checkForChanges);
+    });
+}
+
+// Check for changes and show/hide save buttons accordingly
+function checkForChanges() {
+    const currentSettings = getSettingsFromForm();
+    const hasChanges = hasSettingsChanged(currentSettings);
+    
+    if (hasChanges) {
+        showSaveButtons();
+    } else {
+        hideAllSaveButtons();
+    }
+}
+
+// Check if settings have changed
+function hasSettingsChanged(currentSettings) {
+    // Normalize values for comparison
+    const normalize = (value) => {
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'boolean') return value;
+        if (typeof value === 'number') return value;
+        if (Array.isArray(value)) return value.join(',');
+        return String(value).trim();
+    };
+    
+    for (const key in currentSettings) {
+        const currentValue = normalize(currentSettings[key]);
+        const originalValue = normalize(originalSettings[key]);
+        
+        if (currentValue !== originalValue) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// Show relevant save buttons based on which sections have changes
+function showSaveButtons() {
+    const currentSettings = getSettingsFromForm();
+    
+    // Check each section
+    const sectionMap = {
+        'general': ['privacy_mode', 'data_retention_days', 'log_level', 'hardware_verification_enabled', 
+                    'hardware_verification_camera_test', 'hardware_verification_audio_test', 'hardware_verification_ollama_test'],
+        'voice': ['wakeword_keywords', 'wakeword_sensitivity', 'stt_language', 'tts_voice', 'tts_speed',
+                  'audio_input_device_index', 'audio_output_device_index'],
+        'camera': ['camera_tracking', 'camera_gestures', 'camera_device_path'],
+        'ai': ['llm_model', 'llm_temperature', 'llm_max_tokens', 'llm_system_prompt', 'ollama_url'],
+        'features': ['feature_voice', 'feature_vision', 'feature_tasks', 'feature_ethiopian'],
+        'api-keys': ['gemini_api_key', 'elevenlabs_api_key']
+    };
+    
+    const normalize = (value) => {
+        if (value === null || value === undefined) return '';
+        if (typeof value === 'boolean') return value;
+        if (typeof value === 'number') return value;
+        if (Array.isArray(value)) return value.join(',');
+        return String(value).trim();
+    };
+    
+    let hasAnyChanges = false;
+    
+    // Show section-specific buttons
+    for (const [section, keys] of Object.entries(sectionMap)) {
+        const sectionChanged = keys.some(key => {
+            const currentValue = normalize(currentSettings[key]);
+            const originalValue = normalize(originalSettings[key]);
+            return currentValue !== originalValue;
+        });
+        
+        const buttonId = `save-${section}-settings`;
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.style.display = sectionChanged ? 'inline-block' : 'none';
+        }
+        
+        if (sectionChanged) {
+            hasAnyChanges = true;
+        }
+    }
+    
+    // Show "Save All Settings" button if any changes exist
+    const saveAllBtn = document.getElementById('save-settings');
+    if (saveAllBtn) {
+        saveAllBtn.style.display = hasAnyChanges ? 'inline-block' : 'none';
+    }
+}
+
+// Hide all save buttons
+function hideAllSaveButtons() {
+    const saveButtons = [
+        'save-settings',
+        'save-general-settings',
+        'save-voice-settings',
+        'save-camera-settings',
+        'save-ai-settings',
+        'save-features-settings',
+        'save-api-keys-settings'
+    ];
+    
+    saveButtons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+            btn.style.display = 'none';
+        }
+    });
 }
 
 function getSettingsFromForm() {
@@ -825,6 +968,8 @@ async function saveSectionSettings(section) {
         
         if (result.status === 'success' || result.status === 'partial') {
             showSettingsMessage(`${section.charAt(0).toUpperCase() + section.slice(1)} settings saved successfully!`, 'success');
+            
+            // Reload settings to update original values and hide buttons
             await loadSettings();
         } else {
             showSettingsMessage('Error saving settings: ' + (result.message || 'Unknown error'), 'danger');
