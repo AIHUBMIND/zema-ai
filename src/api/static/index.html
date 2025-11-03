@@ -388,6 +388,49 @@
                                                         </select>
                                                         <small class="form-text text-muted">Verbosity level for logging (DEBUG shows all details)</small>
                                                     </div>
+                                                    
+                                                    <hr class="my-3">
+                                                    <h5 class="mb-3">Hardware Verification</h5>
+                                                    
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-switch">
+                                                            <input type="checkbox" class="custom-control-input" id="hardware-verification-enabled" checked>
+                                                            <label class="custom-control-label" for="hardware-verification-enabled">
+                                                                <i class="fas fa-check-circle"></i> Enable Hardware Verification on Startup
+                                                            </label>
+                                                        </div>
+                                                        <small class="form-text text-muted">Run hardware verification checks when Zema starts</small>
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-switch">
+                                                            <input type="checkbox" class="custom-control-input" id="hardware-verification-camera-test" checked>
+                                                            <label class="custom-control-label" for="hardware-verification-camera-test">
+                                                                <i class="fas fa-video"></i> Run Camera Verification Test
+                                                            </label>
+                                                        </div>
+                                                        <small class="form-text text-muted">Test camera detection and functionality during startup</small>
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-switch">
+                                                            <input type="checkbox" class="custom-control-input" id="hardware-verification-audio-test" checked>
+                                                            <label class="custom-control-label" for="hardware-verification-audio-test">
+                                                                <i class="fas fa-microphone"></i> Run Audio Verification Test
+                                                            </label>
+                                                        </div>
+                                                        <small class="form-text text-muted">Test microphone and speaker during startup</small>
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <div class="custom-control custom-switch">
+                                                            <input type="checkbox" class="custom-control-input" id="hardware-verification-ollama-test" checked>
+                                                            <label class="custom-control-label" for="hardware-verification-ollama-test">
+                                                                <i class="fas fa-brain"></i> Run Ollama Verification Test
+                                                            </label>
+                                                        </div>
+                                                        <small class="form-text text-muted">Test Ollama connection and model availability during startup</small>
+                                                    </div>
                                                 </div>
                                             </div>
                                             
@@ -444,6 +487,25 @@
                                                         <input type="range" class="form-control-range" id="tts-speed" min="0.5" max="2.0" step="0.1" value="1.0">
                                                         <small class="form-text text-muted">Adjust how fast Zema speaks (0.5x = slow, 2.0x = fast)</small>
                                                     </div>
+                                                    
+                                                    <hr class="my-3">
+                                                    <h5 class="mb-3">Audio Device Selection (Advanced)</h5>
+                                                    
+                                                    <div class="form-group">
+                                                        <label for="audio-input-device-index">
+                                                            <i class="fas fa-microphone-alt"></i> Audio Input Device Index
+                                                        </label>
+                                                        <input type="number" class="form-control" id="audio-input-device-index" min="0" placeholder="Auto-detect">
+                                                        <small class="form-text text-muted">Override audio input device (leave empty for auto-detection). Run hardware verification to see available devices.</small>
+                                                    </div>
+                                                    
+                                                    <div class="form-group">
+                                                        <label for="audio-output-device-index">
+                                                            <i class="fas fa-volume-up"></i> Audio Output Device Index
+                                                        </label>
+                                                        <input type="number" class="form-control" id="audio-output-device-index" min="0" placeholder="Auto-detect">
+                                                        <small class="form-text text-muted">Override audio output device (leave empty for auto-detection). Run hardware verification to see available devices.</small>
+                                                    </div>
                                                 </div>
                                             </div>
                                             
@@ -468,6 +530,17 @@
                                                             </label>
                                                         </div>
                                                         <small class="form-text text-muted">Enable gesture recognition (wave to activate)</small>
+                                                    </div>
+                                                    
+                                                    <hr class="my-3">
+                                                    <h5 class="mb-3">Camera Device (Advanced)</h5>
+                                                    
+                                                    <div class="form-group">
+                                                        <label for="camera-device-path">
+                                                            <i class="fas fa-video"></i> Camera Device Path
+                                                        </label>
+                                                        <input type="text" class="form-control" id="camera-device-path" placeholder="/dev/video0 (auto-detect if empty)">
+                                                        <small class="form-text text-muted">Override camera device path (e.g., /dev/video0). Leave empty for auto-detection. Run hardware verification to find your camera.</small>
                                                     </div>
                                                 </div>
                                             </div>
@@ -509,6 +582,17 @@
                                                         </label>
                                                         <textarea class="form-control" id="llm-system-prompt" rows="3" placeholder="You are Zema, a helpful privacy-first AI assistant."></textarea>
                                                         <small class="form-text text-muted">Define Zema's personality and behavior (advanced users only)</small>
+                                                    </div>
+                                                    
+                                                    <hr class="my-3">
+                                                    <h5 class="mb-3">Ollama Connection (Advanced)</h5>
+                                                    
+                                                    <div class="form-group">
+                                                        <label for="ollama-url">
+                                                            <i class="fas fa-server"></i> Ollama Server URL
+                                                        </label>
+                                                        <input type="text" class="form-control" id="ollama-url" placeholder="http://localhost:11434">
+                                                        <small class="form-text text-muted">Ollama server URL. Use this if Ollama is running on a different machine or port.</small>
                                                     </div>
                                                 </div>
                                             </div>

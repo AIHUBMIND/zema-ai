@@ -477,6 +477,13 @@ function populateSettingsForm(settings) {
         document.getElementById('tts-speed').value = settings.tts_speed;
         document.getElementById('speed-value').textContent = settings.tts_speed.toFixed(1) + 'x';
     }
+    // Phase 0.5: Audio device indices
+    if (settings.audio_input_device_index !== undefined && settings.audio_input_device_index !== null) {
+        document.getElementById('audio-input-device-index').value = settings.audio_input_device_index;
+    }
+    if (settings.audio_output_device_index !== undefined && settings.audio_output_device_index !== null) {
+        document.getElementById('audio-output-device-index').value = settings.audio_output_device_index;
+    }
     
     // Camera & Vision
     if (settings.camera_tracking !== undefined) {
@@ -484,6 +491,10 @@ function populateSettingsForm(settings) {
     }
     if (settings.camera_gestures !== undefined) {
         document.getElementById('camera-gestures').checked = settings.camera_gestures;
+    }
+    // Phase 0.5: Camera device path
+    if (settings.camera_device_path) {
+        document.getElementById('camera-device-path').value = settings.camera_device_path;
     }
     
     // AI & Intelligence
@@ -499,6 +510,10 @@ function populateSettingsForm(settings) {
     }
     if (settings.llm_system_prompt) {
         document.getElementById('llm-system-prompt').value = settings.llm_system_prompt;
+    }
+    // Phase 0.5: Ollama URL
+    if (settings.ollama_url) {
+        document.getElementById('ollama-url').value = settings.ollama_url;
     }
     
     // Features
@@ -522,6 +537,20 @@ function populateSettingsForm(settings) {
     if (settings.elevenlabs_api_key) {
         document.getElementById('elevenlabs-api-key').value = '••••••••••••••••';
     }
+    
+    // Phase 0.5: Hardware verification settings
+    if (settings.hardware_verification_enabled !== undefined) {
+        document.getElementById('hardware-verification-enabled').checked = settings.hardware_verification_enabled;
+    }
+    if (settings.hardware_verification_camera_test !== undefined) {
+        document.getElementById('hardware-verification-camera-test').checked = settings.hardware_verification_camera_test;
+    }
+    if (settings.hardware_verification_audio_test !== undefined) {
+        document.getElementById('hardware-verification-audio-test').checked = settings.hardware_verification_audio_test;
+    }
+    if (settings.hardware_verification_ollama_test !== undefined) {
+        document.getElementById('hardware-verification-ollama-test').checked = settings.hardware_verification_ollama_test;
+    }
 }
 
 function getSettingsFromForm() {
@@ -532,6 +561,12 @@ function getSettingsFromForm() {
     settings.data_retention_days = parseInt(document.getElementById('data-retention-days').value);
     settings.log_level = document.getElementById('log-level').value;
     
+    // Phase 0.5: Hardware verification settings
+    settings.hardware_verification_enabled = document.getElementById('hardware-verification-enabled').checked;
+    settings.hardware_verification_camera_test = document.getElementById('hardware-verification-camera-test').checked;
+    settings.hardware_verification_audio_test = document.getElementById('hardware-verification-audio-test').checked;
+    settings.hardware_verification_ollama_test = document.getElementById('hardware-verification-ollama-test').checked;
+    
     // Voice & Audio
     const keywordsInput = document.getElementById('wakeword-keywords').value;
     settings.wakeword_keywords = keywordsInput.split(',').map(k => k.trim()).filter(k => k);
@@ -539,16 +574,38 @@ function getSettingsFromForm() {
     settings.stt_language = document.getElementById('stt-language').value;
     settings.tts_voice = document.getElementById('tts-voice').value;
     settings.tts_speed = parseFloat(document.getElementById('tts-speed').value);
+    // Phase 0.5: Audio device indices
+    const audioInputIndex = document.getElementById('audio-input-device-index').value;
+    if (audioInputIndex && audioInputIndex.trim() !== '') {
+        settings.audio_input_device_index = parseInt(audioInputIndex);
+    } else {
+        settings.audio_input_device_index = null;
+    }
+    const audioOutputIndex = document.getElementById('audio-output-device-index').value;
+    if (audioOutputIndex && audioOutputIndex.trim() !== '') {
+        settings.audio_output_device_index = parseInt(audioOutputIndex);
+    } else {
+        settings.audio_output_device_index = null;
+    }
     
     // Camera & Vision
     settings.camera_tracking = document.getElementById('camera-tracking').checked;
     settings.camera_gestures = document.getElementById('camera-gestures').checked;
+    // Phase 0.5: Camera device path
+    const cameraDevicePath = document.getElementById('camera-device-path').value.trim();
+    if (cameraDevicePath) {
+        settings.camera_device_path = cameraDevicePath;
+    } else {
+        settings.camera_device_path = null;
+    }
     
     // AI & Intelligence
     settings.llm_model = document.getElementById('llm-model').value;
     settings.llm_temperature = parseFloat(document.getElementById('llm-temperature').value);
     settings.llm_max_tokens = parseInt(document.getElementById('llm-max-tokens').value);
     settings.llm_system_prompt = document.getElementById('llm-system-prompt').value;
+    // Phase 0.5: Ollama URL
+    settings.ollama_url = document.getElementById('ollama-url').value.trim() || 'http://localhost:11434';
     
     // Features
     settings.feature_voice = document.getElementById('feature-voice').checked;

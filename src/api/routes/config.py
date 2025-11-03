@@ -36,19 +36,28 @@ USER_FACING_SETTINGS = {
     'stt_language',
     'tts_voice',
     'tts_speed',
+    'audio_input_device_index',  # Phase 0.5: Hardware verification
+    'audio_output_device_index',  # Phase 0.5: Hardware verification
     # Camera & Vision
     'camera_tracking',
     'camera_gestures',
+    'camera_device_path',  # Phase 0.5: Hardware verification
     # AI & Intelligence
     'llm_model',
     'llm_temperature',
     'llm_max_tokens',
     'llm_system_prompt',
+    'ollama_url',  # Phase 0.5: Hardware verification
     # Features
     'feature_voice',
     'feature_vision',
     'feature_tasks',
     'feature_ethiopian',
+    # Hardware Verification (Phase 0.5)
+    'hardware_verification_enabled',
+    'hardware_verification_camera_test',
+    'hardware_verification_audio_test',
+    'hardware_verification_ollama_test',
     # API Keys
     'gemini_api_key',
     'elevenlabs_api_key',
