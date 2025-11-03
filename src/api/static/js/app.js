@@ -363,6 +363,9 @@ $(document).ready(function() {
         // Setup navigation (uses jQuery internally)
         setupNavigation();
         
+        // Setup QA handlers
+        setupQAHandlers();
+        
         // Logs viewer event listeners
     const refreshBtn = document.getElementById('refresh-logs');
     const clearBtn = document.getElementById('clear-logs');
@@ -943,7 +946,11 @@ function setupSettingsHandlers() {
 
 // Save settings for a specific section
 async function saveSectionSettings(section) {
+    console.log(`[SAVE] Attempting to save ${section} settings...`);
+    
     const allSettings = getSettingsFromForm();
+    console.log('[SAVE] All settings from form:', allSettings);
+    
     const sectionSettings = {};
     
     // Map sections to their settings keys
@@ -959,38 +966,63 @@ async function saveSectionSettings(section) {
     };
     
     const keys = sectionMap[section] || [];
+    console.log(`[SAVE] Section keys for ${section}:`, keys);
+    
     keys.forEach(key => {
         if (allSettings.hasOwnProperty(key)) {
             sectionSettings[key] = allSettings[key];
+            console.log(`[SAVE] Adding ${key} = ${allSettings[key]} (type: ${typeof allSettings[key]})`);
+        } else {
+            console.warn(`[SAVE] Key ${key} not found in allSettings`);
         }
     });
     
+    console.log(`[SAVE] Section settings to save:`, sectionSettings);
+    
     if (Object.keys(sectionSettings).length === 0) {
+        console.warn('[SAVE] No settings to save');
         showSettingsMessage('No settings to save in this section', 'warning');
         return;
     }
     
     try {
+        const requestBody = { updates: sectionSettings };
+        console.log('[SAVE] Sending request:', JSON.stringify(requestBody, null, 2));
+        
         const response = await fetch('/api/config/bulk', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ updates: sectionSettings })
+            body: JSON.stringify(requestBody)
         });
         
+        console.log('[SAVE] Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[SAVE] Response error:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        
         const result = await response.json();
+        console.log('[SAVE] Response result:', result);
         
         if (result.status === 'success' || result.status === 'partial') {
-            showSettingsMessage(`${section.charAt(0).toUpperCase() + section.slice(1)} settings saved successfully!`, 'success');
+            const message = `${section.charAt(0).toUpperCase() + section.slice(1)} settings saved successfully!`;
+            console.log('[SAVE] Success:', message);
+            showSettingsMessage(message, 'success');
             
             // Reload settings to update original values and hide buttons
             await loadSettings();
         } else {
-            showSettingsMessage('Error saving settings: ' + (result.message || 'Unknown error'), 'danger');
+            const errorMsg = result.message || result.errors?.join(', ') || 'Unknown error';
+            console.error('[SAVE] Save failed:', errorMsg);
+            showSettingsMessage('Error saving settings: ' + errorMsg, 'danger');
         }
     } catch (error) {
-        console.error('Error saving section settings:', error);
+        console.error('[SAVE] Exception saving section settings:', error);
+        console.error('[SAVE] Error stack:', error.stack);
         showSettingsMessage('Error saving settings: ' + error.message, 'danger');
     }
 }
@@ -1345,5 +1377,371 @@ async function downloadRecommendedModels() {
 // Make functions globally available for onclick handlers
 window.downloadModel = downloadModel;
 window.deleteModel = deleteModel;
+
+// QA Testing Functions
+async function runQATests() {
+    const resultsDiv = document.getElementById('qa-test-results');
+    resultsDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Running tests...</p></div>';
+    
+    try {
+        const response = await fetch('/api/qa/test/all');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            displayQAResults(data);
+            
+            // Also run client-side tests
+            const clientResults = {
+                buttons: await runClientSideButtonTests(),
+                sliders: await runClientSideSliderTests(),
+                save: await testSaveFunctionality()
+            };
+            
+            // Display client-side results
+            const existingHTML = resultsDiv.innerHTML;
+            let clientHTML = '<div class="card mt-3"><div class="card-header"><h5>Client-Side Tests</h5></div><div class="card-body">';
+            
+            const allClientTests = [...clientResults.buttons, ...clientResults.sliders, ...clientResults.save];
+            const clientPassed = allClientTests.filter(t => t.passed).length;
+            const clientTotal = allClientTests.length;
+            
+            clientHTML += `<p><strong>Client Tests:</strong> ${clientPassed}/${clientTotal} passed</p>`;
+            clientHTML += '<ul>';
+            allClientTests.forEach(test => {
+                const icon = test.passed ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>';
+                clientHTML += `<li>${icon} ${test.test_name}: ${test.message}</li>`;
+            });
+            clientHTML += '</ul></div></div>';
+            
+            resultsDiv.innerHTML = existingHTML + clientHTML;
+        } else {
+            resultsDiv.innerHTML = `<div class="alert alert-danger">Error running tests: ${data.message || 'Unknown error'}</div>`;
+        }
+    } catch (error) {
+        console.error('Error running QA tests:', error);
+        resultsDiv.innerHTML = `<div class="alert alert-danger">Error running tests: ${error.message}</div>`;
+    }
+}
+
+function displayQAResults(data) {
+    const resultsDiv = document.getElementById('qa-test-results');
+    const summary = data.summary;
+    const tests = data.tests;
+    
+    const successRate = summary.success_rate.toFixed(1);
+    const statusClass = summary.failed === 0 ? 'success' : summary.failed < summary.total / 2 ? 'warning' : 'danger';
+    
+    let html = `
+        <div class="card mb-3">
+            <div class="card-header bg-${statusClass}">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Test Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info"><i class="fas fa-vial"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Total Tests</span>
+                                <span class="info-box-number">${summary.total}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-success"><i class="fas fa-check"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Passed</span>
+                                <span class="info-box-number">${summary.passed}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-danger"><i class="fas fa-times"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Failed</span>
+                                <span class="info-box-number">${summary.failed}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-primary"><i class="fas fa-percent"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Success Rate</span>
+                                <span class="info-box-number">${successRate}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Test Results</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Status</th>
+                                <th>Message</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+    `;
+    
+    tests.forEach(test => {
+        const statusIcon = test.passed ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>';
+        const statusBadge = test.passed ? '<span class="badge badge-success">PASSED</span>' : '<span class="badge badge-danger">FAILED</span>';
+        
+        html += `
+            <tr>
+                <td>${test.test_name}</td>
+                <td>${statusIcon} ${statusBadge}</td>
+                <td>${test.message || '-'}</td>
+                <td>${test.details ? JSON.stringify(test.details, null, 2) : '-'}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    resultsDiv.innerHTML = html;
+}
+
+async function runClientSideButtonTests() {
+    const results = [];
+    
+    const saveAllBtn = document.getElementById('save-settings');
+    if (saveAllBtn) {
+        results.push({
+            test_name: 'Save All Settings Button Exists',
+            passed: true,
+            message: 'Button found in DOM'
+        });
+        results.push({
+            test_name: 'Save All Settings Button Handler',
+            passed: typeof saveSettings === 'function',
+            message: typeof saveSettings === 'function' ? 'saveSettings function exists' : 'saveSettings function not found'
+        });
+    } else {
+        results.push({
+            test_name: 'Save All Settings Button Exists',
+            passed: false,
+            message: 'Button not found in DOM'
+        });
+    }
+    
+    const saveVoiceBtn = document.getElementById('save-voice-settings');
+    if (saveVoiceBtn) {
+        results.push({
+            test_name: 'Save Voice Settings Button Exists',
+            passed: true,
+            message: 'Button found in DOM'
+        });
+    } else {
+        results.push({
+            test_name: 'Save Voice Settings Button Exists',
+            passed: false,
+            message: 'Button not found in DOM'
+        });
+    }
+    
+    const saveButtons = [
+        { id: 'save-general-settings', name: 'Save General Settings' },
+        { id: 'save-camera-settings', name: 'Save Camera Settings' },
+        { id: 'save-ai-settings', name: 'Save AI Settings' },
+        { id: 'save-features-settings', name: 'Save Features Settings' },
+        { id: 'save-api-keys-settings', name: 'Save API Keys Settings' }
+    ];
+    
+    saveButtons.forEach(btn => {
+        const element = document.getElementById(btn.id);
+        results.push({
+            test_name: `${btn.name} Button Exists`,
+            passed: element !== null,
+            message: element ? 'Button found' : 'Button not found'
+        });
+    });
+    
+    return results;
+}
+
+async function runClientSideSliderTests() {
+    const results = [];
+    
+    const sensitivitySlider = document.getElementById('wakeword-sensitivity');
+    if (sensitivitySlider) {
+        const value = parseFloat(sensitivitySlider.value);
+        const min = parseFloat(sensitivitySlider.min);
+        const max = parseFloat(sensitivitySlider.max);
+        
+        results.push({
+            test_name: 'Wake Word Sensitivity Slider',
+            passed: value >= min && value <= max,
+            message: `Value: ${value} (range: ${min}-${max})`,
+            details: { value, min, max }
+        });
+        
+        const valueDisplay = document.getElementById('sensitivity-value');
+        if (valueDisplay) {
+            results.push({
+                test_name: 'Sensitivity Value Display Updates',
+                passed: valueDisplay.textContent !== '',
+                message: `Display shows: ${valueDisplay.textContent}`
+            });
+        }
+    }
+    
+    const tempSlider = document.getElementById('llm-temperature');
+    if (tempSlider) {
+        const value = parseFloat(tempSlider.value);
+        const min = parseFloat(tempSlider.min);
+        const max = parseFloat(tempSlider.max);
+        
+        results.push({
+            test_name: 'LLM Temperature Slider',
+            passed: value >= min && value <= max,
+            message: `Value: ${value} (range: ${min}-${max})`,
+            details: { value, min, max }
+        });
+    }
+    
+    const ttsSpeedSlider = document.getElementById('tts-speed');
+    if (ttsSpeedSlider) {
+        const value = parseFloat(ttsSpeedSlider.value);
+        const min = parseFloat(ttsSpeedSlider.min);
+        const max = parseFloat(ttsSpeedSlider.max);
+        
+        results.push({
+            test_name: 'TTS Speed Slider',
+            passed: value >= min && value <= max,
+            message: `Value: ${value} (range: ${min}-${max})`,
+            details: { value, min, max }
+        });
+    }
+    
+    return results;
+}
+
+async function testSaveFunctionality() {
+    const results = [];
+    
+    try {
+        const formSettings = getSettingsFromForm();
+        results.push({
+            test_name: 'Read Settings From Form',
+            passed: Object.keys(formSettings).length > 0,
+            message: `Read ${Object.keys(formSettings).length} settings from form`
+        });
+    } catch (error) {
+        results.push({
+            test_name: 'Read Settings From Form',
+            passed: false,
+            message: `Error: ${error.message}`
+        });
+    }
+    
+    results.push({
+        test_name: 'Save Settings Function Exists',
+        passed: typeof saveSectionSettings === 'function',
+        message: typeof saveSectionSettings === 'function' ? 'Function exists' : 'Function not found'
+    });
+    
+    return results;
+}
+
+function displayTestResults(title, tests) {
+    const resultsDiv = document.getElementById('qa-test-results');
+    const passed = tests.filter(t => t.passed).length;
+    
+    let html = `
+        <div class="card">
+            <div class="card-header bg-${passed === tests.length ? 'success' : 'warning'}">
+                <h5 class="mb-0">${title}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Results:</strong> ${passed}/${tests.length} passed</p>
+                <ul class="list-unstyled">
+    `;
+    
+    tests.forEach(test => {
+        const icon = test.passed ? '<i class="fas fa-check-circle text-success"></i>' : '<i class="fas fa-times-circle text-danger"></i>';
+        html += `<li>${icon} <strong>${test.test_name}:</strong> ${test.message}</li>`;
+    });
+    
+    html += '</ul></div></div>';
+    resultsDiv.innerHTML = html;
+}
+
+// Setup QA test handlers
+function setupQAHandlers() {
+    const runAllBtn = document.getElementById('run-all-qa-tests');
+    if (runAllBtn) {
+        runAllBtn.addEventListener('click', runQATests);
+    }
+    
+    const testButtonsBtn = document.getElementById('test-buttons-btn');
+    if (testButtonsBtn) {
+        testButtonsBtn.addEventListener('click', async () => {
+            const results = await runClientSideButtonTests();
+            displayTestResults('Button Tests', results);
+        });
+    }
+    
+    const testSlidersBtn = document.getElementById('test-sliders-btn');
+    if (testSlidersBtn) {
+        testSlidersBtn.addEventListener('click', async () => {
+            const results = await runClientSideSliderTests();
+            displayTestResults('Slider Tests', results);
+        });
+    }
+    
+    const testSaveBtn = document.getElementById('test-save-btn');
+    if (testSaveBtn) {
+        testSaveBtn.addEventListener('click', async () => {
+            const results = await testSaveFunctionality();
+            displayTestResults('Save Functionality Tests', results);
+        });
+    }
+    
+    const testLoggingBtn = document.getElementById('test-logging-btn');
+    if (testLoggingBtn) {
+        testLoggingBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/qa/test/logging');
+                const data = await response.json();
+                displayTestResults('Logging Tests', data.tests);
+            } catch (error) {
+                displayTestResults('Logging Tests', [{
+                    test_name: 'Error',
+                    passed: false,
+                    message: error.message
+                }]);
+            }
+        });
+    }
+}
+
+// Initialize all handlers (add to existing initialization)
+if (typeof setupQAHandlers === 'function') {
+    // Add QA handlers to existing initialization
+    const existingInit = document.addEventListener('DOMContentLoaded', function() {
+        setupQAHandlers();
+    });
+}
+
 
 

@@ -116,32 +116,56 @@ async def update_config_bulk(
     
     Only allows updating user-facing settings via API
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"Bulk config update requested: {len(updates.updates)} settings")
+    logger.debug(f"Settings to update: {updates.updates}")
+    
     results = {}
     errors = []
     
     for key, value in updates.updates.items():
+        logger.debug(f"Processing update: {key} = {value} (type: {type(value).__name__})")
+        
         # Validate that it's a user-facing setting
         if key not in USER_FACING_SETTINGS:
-            errors.append(f"Setting '{key}' is not user-configurable")
-            results[key] = {"status": "error", "message": "Not user-configurable"}
+            error_msg = f"'{key}' is not a user-facing setting"
+            logger.warning(error_msg)
+            errors.append(error_msg)
+            results[key] = {"status": "error", "message": "Not a user-facing setting"}
             continue
         
-        success = config_manager.update_setting(key, value)
-        if success:
-            results[key] = {"status": "updated", "value": value}
-        else:
-            errors.append(f"Failed to update '{key}'")
-            results[key] = {"status": "error", "message": "Update failed"}
+        # Update setting
+        try:
+            success = config_manager.update_setting(key, value)
+            if success:
+                logger.info(f"Successfully updated setting: {key} = {value}")
+                results[key] = {"status": "updated", "value": value}
+            else:
+                error_msg = f"Failed to update '{key}'"
+                logger.error(error_msg)
+                errors.append(error_msg)
+                results[key] = {"status": "error", "message": "Update failed"}
+        except Exception as e:
+            error_msg = f"Exception updating '{key}': {str(e)}"
+            logger.error(error_msg, exc_info=True)
+            errors.append(error_msg)
+            results[key] = {"status": "error", "message": str(e)}
     
     if errors:
+        logger.warning(f"Bulk update completed with {len(errors)} errors: {errors}")
         return {
             "status": "partial",
             "results": results,
-            "errors": errors
+            "errors": errors,
+            "message": f"Updated {len(results) - len(errors)}/{len(updates.updates)} settings. {len(errors)} errors."
         }
     
+    logger.info(f"Bulk update successful: {len(results)} settings updated")
     return {
         "status": "success",
-        "results": results
+        "results": results,
+        "message": f"Successfully updated {len(results)} settings"
     }
 

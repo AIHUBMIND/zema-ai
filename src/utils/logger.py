@@ -80,10 +80,14 @@ def setup_logging(log_level: str = "INFO") -> None:
     file_handler.setLevel(logging.DEBUG)
     
     class JSONFormatter(logging.Formatter):
-        """JSON formatter for structured logging"""
+        """JSON formatter for structured logging - Industry Best Practices"""
         
         def format(self, record: logging.LogRecord) -> str:
-            """Format log record as JSON"""
+            """Format log record as JSON with industry best practices"""
+            import traceback
+            import sys
+            
+            # Base log data structure (industry standard)
             log_data = {
                 "timestamp": self.formatTime(record, self.datefmt),
                 "level": record.levelname,
@@ -91,16 +95,50 @@ def setup_logging(log_level: str = "INFO") -> None:
                 "module": record.module,
                 "function": record.funcName,
                 "line": record.lineno,
-                "message": record.getMessage()
+                "message": record.getMessage(),
+                "thread": record.threadName if hasattr(record, 'threadName') else None,
+                "process": record.process if hasattr(record, 'process') else None
             }
             
-            # Add exception info if present
+            # Add exception info if present (with full traceback)
             if record.exc_info:
-                log_data["exception"] = self.formatException(record.exc_info)
+                log_data["exception"] = {
+                    "type": record.exc_info[0].__name__ if record.exc_info[0] else None,
+                    "message": str(record.exc_info[1]) if record.exc_info[1] else None,
+                    "traceback": self.formatException(record.exc_info)
+                }
             
-            # Add extra fields if present
+            # Add stack trace for DEBUG level (useful for debugging)
+            if record.levelno == logging.DEBUG and not record.exc_info:
+                try:
+                    stack = traceback.extract_stack()
+                    log_data["stack_trace"] = [
+                        {
+                            "file": frame.filename,
+                            "line": frame.lineno,
+                            "function": frame.name,
+                            "code": frame.line
+                        }
+                        for frame in stack[-5:]  # Last 5 frames
+                    ]
+                except Exception:
+                    pass  # Don't fail if stack trace extraction fails
+            
+            # Add extra fields if present (for context)
             if hasattr(record, 'extra'):
                 log_data.update(record.extra)
+            
+            # Add user context if available
+            if hasattr(record, 'user_id'):
+                log_data["user_id"] = record.user_id
+            if hasattr(record, 'request_id'):
+                log_data["request_id"] = record.request_id
+            
+            # Add performance metrics if available
+            if hasattr(record, 'duration_ms'):
+                log_data["duration_ms"] = record.duration_ms
+            if hasattr(record, 'memory_mb'):
+                log_data["memory_mb"] = record.memory_mb
             
             return json.dumps(log_data, ensure_ascii=False)
     
