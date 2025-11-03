@@ -75,7 +75,7 @@ class Camera:
         logger.info(f"Setting PTZ: pan={pan}, tilt={tilt}")
         return False
     
-    def close(self):
+    def close(self) -> None:
         """Close camera"""
         if self.cap:
             # TODO: Release camera

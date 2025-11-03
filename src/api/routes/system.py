@@ -3,13 +3,14 @@ System API Routes
 """
 
 from fastapi import APIRouter
+from typing import Dict, Any
 import psutil
 import time
 
 router = APIRouter()
 
 @router.get("/api/status")
-async def get_status():
+async def get_status() -> Dict[str, Any]:
     """Get system status"""
     return {
         "status": "listening",

@@ -39,7 +39,7 @@ class AudioIO:
         
         logger.info("AudioIO initialized (PyAudio initialization pending)")
     
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Clean up audio resources"""
         logger.info("AudioIO cleanup")
 

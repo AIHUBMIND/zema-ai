@@ -28,13 +28,13 @@ class Orchestrator:
         
         logger.info("Orchestrator initialized")
     
-    async def start(self):
+    async def start(self) -> None:
         """Start the main conversation loop"""
         logger.info("Starting orchestrator...")
         self.running = True
         # TODO: Implement main loop
     
-    async def shutdown(self):
+    async def shutdown(self) -> None:
         """Graceful shutdown"""
         logger.info("Shutting down orchestrator...")
         self.running = False

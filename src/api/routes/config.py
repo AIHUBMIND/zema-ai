@@ -16,12 +16,12 @@ class ConfigUpdate(BaseModel):
     value: Any
 
 @router.get("/api/config")
-async def get_config(settings: Settings):
+async def get_config(settings: Settings) -> Dict[str, Any]:
     """Get current configuration"""
     return settings.model_dump()
 
 @router.post("/api/config")
-async def update_config(update: ConfigUpdate, config_manager: ConfigManager):
+async def update_config(update: ConfigUpdate, config_manager: ConfigManager) -> Dict[str, Any]:
     """Update configuration"""
     success = config_manager.update_setting(update.key, update.value)
     if success:

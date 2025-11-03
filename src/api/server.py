@@ -35,17 +35,17 @@ if static_dir.exists():
 websocket_connections = []
 
 @app.on_event("startup")
-async def startup():
+async def startup() -> None:
     """Startup event"""
     logger.info("Dashboard server starting...")
 
 @app.on_event("shutdown")
-async def shutdown():
+async def shutdown() -> None:
     """Shutdown event"""
     logger.info("Dashboard server shutting down...")
 
 @app.get("/", response_class=HTMLResponse)
-async def dashboard():
+async def dashboard() -> HTMLResponse:
     """Serve main dashboard page"""
     html_path = static_dir / "index.html"
     if html_path.exists():
@@ -53,7 +53,7 @@ async def dashboard():
     return "<h1>Dashboard not found</h1>"
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket) -> None:
     """WebSocket for real-time updates"""
     await websocket.accept()
     websocket_connections.append(websocket)
@@ -72,7 +72,7 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         websocket_connections.remove(websocket)
 
-async def start_dashboard(settings: Settings):
+async def start_dashboard(settings: Settings) -> None:
     """Start dashboard server"""
     config = uvicorn.Config(
         app,

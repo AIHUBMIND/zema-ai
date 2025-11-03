@@ -176,7 +176,7 @@ class LLMClient:
         
         return messages
     
-    def clear_history(self):
+    def clear_history(self) -> None:
         """Clear conversation history"""
         self.conversation_history.clear()
         logger.info("Conversation history cleared")

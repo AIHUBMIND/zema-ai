@@ -44,7 +44,7 @@ class WakeWordDetector:
         logger.info("Waiting for wake word...")
         return None
     
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Clean up resources"""
         logger.info("WakeWordDetector cleanup")
 

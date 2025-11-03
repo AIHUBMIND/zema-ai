@@ -40,7 +40,7 @@ class ConfigManager:
         self._load_config()
         logger.info("ConfigManager initialized")
     
-    def _load_config(self):
+    def _load_config(self) -> None:
         """Load configuration from file if it exists"""
         if self.config_file.exists():
             try:
@@ -94,7 +94,7 @@ class ConfigManager:
             logger.error(f"Failed to update setting: {e}")
             return False
     
-    def _save_config(self):
+    def _save_config(self) -> None:
         """Save configuration to file"""
         try:
             config_dict = self.settings.model_dump()

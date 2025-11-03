@@ -10,7 +10,9 @@ import json
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from functools import wraps
-from typing import Callable, Any
+from typing import Callable, Any, TypeVar, Awaitable
+
+T = TypeVar('T')
 
 try:
     from rich.logging import RichHandler
@@ -125,7 +127,8 @@ def log_performance(func: Callable) -> Callable:
     """
     if asyncio.iscoroutinefunction(func):
         @wraps(func)
-        async def async_wrapper(*args, **kwargs):
+        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Internal async wrapper for performance logging"""
             logger = logging.getLogger(func.__module__)
             start = time.time()
             func_name = f"{func.__module__}.{func.__name__}"
@@ -146,7 +149,8 @@ def log_performance(func: Callable) -> Callable:
         return async_wrapper
     else:
         @wraps(func)
-        def sync_wrapper(*args, **kwargs):
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Internal sync wrapper for performance logging"""
             logger = logging.getLogger(func.__module__)
             start = time.time()
             func_name = f"{func.__module__}.{func.__name__}"

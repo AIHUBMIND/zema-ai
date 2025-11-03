@@ -38,7 +38,7 @@ class ApplicationState:
         
         logger.info("ApplicationState initialized")
     
-    def add_conversation_turn(self, user_input: str, assistant_response: str, context: Dict[str, Any] = None):
+    def add_conversation_turn(self, user_input: str, assistant_response: str, context: Dict[str, Any] = None) -> None:
         """
         Add a conversation turn to history
         
@@ -60,7 +60,7 @@ class ApplicationState:
         
         logger.debug(f"Added conversation turn: {user_input[:50]}...")
     
-    def clear_history(self):
+    def clear_history(self) -> None:
         """Clear conversation history"""
         self.conversation_history.clear()
         logger.info("Conversation history cleared")

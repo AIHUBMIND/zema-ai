@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 __version__ = "0.1.0"
 
 
-async def main():
+async def main() -> None:
     """Main application entry point"""
     # Setup logging
     setup_logging(settings.log_level)
