@@ -2481,7 +2481,8 @@ python -m uvicorn src.api.server:app --reload
 
 **What:** Web dashboard UI (HTML/CSS)  
 **Why:** Visual interface for configuration  
-**Dependencies:** DASHBOARD-001
+**Dependencies:** DASHBOARD-001  
+**Files:** @src/api/static/index.html @src/api/static/css/style.css
 
 ```markdown
 @src/api/static/index.html
@@ -2491,24 +2492,113 @@ Create dashboard HTML/CSS:
 
 Requirements:
 1. Responsive design (mobile + desktop)
-2. Modern, clean UI
+2. Modern, clean UI with dark theme
 3. Sections: Dashboard, Settings, Users, History, Privacy
 4. Real-time status indicators
 5. Settings forms with validation
-6. Dark mode support (optional)
+6. Dark mode support (toggle)
+7. Navigation sidebar
+8. Status cards (CPU, Memory, Uptime)
 
-See ZEMA-IMPLEMENTATION.md section 3 for complete HTML/CSS code.
-The dashboard should match the implementation guide exactly.
+Implementation structure:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zema Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="logo">Zema AI</div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="active">Dashboard</a></li>
+                <li><a href="#settings">Settings</a></li>
+                <li><a href="#users">Users</a></li>
+                <li><a href="#history">History</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <header class="header">
+                <h1>Dashboard</h1>
+                <button class="dark-mode-toggle">🌙</button>
+            </header>
+            
+            <section id="dashboard" class="section active">
+                <div class="status-cards">
+                    <div class="card">
+                        <h3>Status</h3>
+                        <p class="status-indicator" id="status">Listening</p>
+                    </div>
+                    <div class="card">
+                        <h3>CPU</h3>
+                        <p id="cpu-usage">--</p>
+                    </div>
+                    <div class="card">
+                        <h3>Memory</h3>
+                        <p id="memory-usage">--</p>
+                    </div>
+                    <div class="card">
+                        <h3>Uptime</h3>
+                        <p id="uptime">--</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="settings" class="section">
+                <h2>Settings</h2>
+                <form id="settings-form">
+                    <!-- Settings form fields -->
+                </form>
+            </section>
+            
+            <!-- Other sections -->
+        </main>
+    </div>
+    
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
+```
+
+CSS Requirements:
+- Modern dark theme
+- Responsive grid layout
+- Smooth transitions
+- Mobile-friendly navigation
+- Status indicator animations
 ```
 
 **Expected Output:**
 - `src/api/static/index.html` - Complete dashboard HTML
-- `src/api/static/css/style.css` - Styling
+- `src/api/static/css/style.css` - Styling with dark theme
 
 **Testing:**
-- Open http://localhost:8000
-- Dashboard loads without errors
-- All sections accessible
+```bash
+# Start dashboard server
+python -m uvicorn src.api.server:app --reload
+
+# Test dashboard
+# 1. Open http://localhost:8000 in browser
+# 2. Verify dashboard loads without errors
+# 3. Check all sections accessible
+# 4. Test responsive design (resize window)
+# 5. Test dark mode toggle
+# 6. Verify status cards update
+```
+
+**Verification:**
+- [ ] Dashboard loads correctly
+- [ ] All sections accessible
+- [ ] Responsive design works
+- [ ] Dark mode toggle functional
+- [ ] No console errors
+- [ ] Committed: `python scripts/auto_commit.py "DASHBOARD-002 - Dashboard HTML/CSS"`
 
 ---
 
@@ -2516,7 +2606,8 @@ The dashboard should match the implementation guide exactly.
 
 **What:** Frontend JavaScript for dashboard  
 **Why:** Interactive dashboard functionality  
-**Dependencies:** DASHBOARD-001, DASHBOARD-002
+**Dependencies:** DASHBOARD-001, DASHBOARD-002  
+**Files:** @src/api/static/js/app.js
 
 ```markdown
 @src/api/static/js/app.js
@@ -2530,17 +2621,158 @@ Requirements:
 4. Real-time status updates
 5. Error handling and user feedback
 6. Conversation history display
+7. Dark mode toggle
+8. Navigation handling
 
-See ZEMA-IMPLEMENTATION.md section 3 for complete JavaScript code.
+Implementation:
+```javascript
+// WebSocket connection
+let ws = null;
+let reconnectTimeout = null;
+
+function connectWebSocket() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    
+    ws = new WebSocket(wsUrl);
+    
+    ws.onopen = () => {
+        console.log('WebSocket connected');
+        clearTimeout(reconnectTimeout);
+    };
+    
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        handleWebSocketMessage(data);
+    };
+    
+    ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+    
+    ws.onclose = () => {
+        console.log('WebSocket disconnected, reconnecting...');
+        reconnectTimeout = setTimeout(connectWebSocket, 3000);
+    };
+}
+
+function handleWebSocketMessage(data) {
+    switch (data.type) {
+        case 'status':
+            updateStatus(data.data);
+            break;
+        case 'config_update':
+            updateSettingsDisplay(data.data);
+            break;
+        case 'conversation':
+            addConversationToHistory(data.data);
+            break;
+    }
+}
+
+// API calls
+async function fetchStatus() {
+    try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        updateStatus(data);
+    } catch (error) {
+        console.error('Failed to fetch status:', error);
+    }
+}
+
+async function saveSettings(settings) {
+    try {
+        const response = await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(settings)
+        });
+        
+        if (response.ok) {
+            showNotification('Settings saved successfully', 'success');
+        } else {
+            showNotification('Failed to save settings', 'error');
+        }
+    } catch (error) {
+        console.error('Failed to save settings:', error);
+        showNotification('Error saving settings', 'error');
+    }
+}
+
+// Settings form handling
+document.getElementById('settings-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const settings = Object.fromEntries(formData);
+    await saveSettings(settings);
+});
+
+// Dark mode toggle
+document.querySelector('.dark-mode-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    connectWebSocket();
+    fetchStatus();
+    setInterval(fetchStatus, 5000); // Poll every 5 seconds
+    
+    // Load dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+});
+```
+
+Error Handling:
+- WebSocket reconnection logic
+- API error handling with user feedback
+- Form validation
+- Network error notifications
+
+Integration:
+- Connects to WebSocket endpoint
+- Calls REST API endpoints
+- Updates UI in real-time
+- Saves preferences to localStorage
 ```
 
 **Expected Output:**
 - `src/api/static/js/app.js` - Complete dashboard JS
+- WebSocket connection management
+- API integration
+- Real-time updates
 
 **Testing:**
-- Dashboard updates in real-time
-- Settings save successfully
-- WebSocket connection stable
+```bash
+# Test WebSocket
+# 1. Open dashboard
+# 2. Open browser console
+# 3. Check WebSocket connection established
+# 4. Trigger conversation → See update in dashboard
+# 5. Disconnect network → WebSocket reconnects
+
+# Test API calls
+curl http://localhost:8000/api/status
+curl -X POST http://localhost:8000/api/config -H "Content-Type: application/json" -d '{"privacy_mode":"local"}'
+
+# Test settings form
+# 1. Fill out settings form
+# 2. Submit form
+# 3. Verify settings saved
+# 4. Check API response
+```
+
+**Verification:**
+- [ ] WebSocket connects successfully
+- [ ] Real-time updates work
+- [ ] Settings save correctly
+- [ ] Error handling works
+- [ ] Dark mode persists
+- [ ] Committed: `python scripts/auto_commit.py "DASHBOARD-003 - JavaScript application logic"`
 
 ---
 
@@ -2548,7 +2780,8 @@ See ZEMA-IMPLEMENTATION.md section 3 for complete JavaScript code.
 
 **What:** REST API endpoints for dashboard  
 **Why:** Backend API for configuration  
-**Dependencies:** DASHBOARD-001
+**Dependencies:** DASHBOARD-001, SETUP-002  
+**Files:** @src/api/routes/config.py @src/api/routes/users.py @src/api/routes/conversations.py @src/api/routes/system.py
 
 ```markdown
 @src/api/routes/config.py
@@ -2565,19 +2798,100 @@ Requirements:
 4. GET /api/status - System status
 5. Input validation with Pydantic
 6. Error handling
+7. CORS support
+8. Rate limiting
 
-See ZEMA-IMPLEMENTATION.md section 3 for API endpoint specifications.
+Implementation:
+```python
+# src/api/routes/config.py
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from typing import Dict, Any
+from src.config.settings import Settings
+from src.config.config_manager import ConfigManager
+
+router = APIRouter()
+
+class ConfigUpdate(BaseModel):
+    key: str
+    value: Any
+
+@router.get("/api/config")
+async def get_config(settings: Settings):
+    """Get current configuration"""
+    return settings.model_dump()
+
+@router.post("/api/config")
+async def update_config(update: ConfigUpdate, config_manager: ConfigManager):
+    """Update configuration"""
+    success = config_manager.update_setting(update.key, update.value)
+    if success:
+        return {"status": "updated", "key": update.key, "value": update.value}
+    raise HTTPException(status_code=400, detail="Invalid setting")
+
+# src/api/routes/system.py
+from fastapi import APIRouter
+import psutil
+import time
+
+router = APIRouter()
+
+@router.get("/api/status")
+async def get_status():
+    """Get system status"""
+    return {
+        "status": "listening",
+        "cpu_percent": psutil.cpu_percent(),
+        "memory_percent": psutil.virtual_memory().percent,
+        "uptime": time.time()  # Simplified
+    }
+```
+
+Error Handling:
+- HTTPException for errors
+- Validation errors with clear messages
+- 500 errors for unexpected failures
+
+Integration:
+- Uses ConfigManager for settings
+- Connects with EventBus for updates
+- Returns JSON responses
 ```
 
 **Expected Output:**
 - API route files with all endpoints
 - Request/response models
+- Error handling
 
 **Testing:**
 ```bash
+# Test status endpoint
 curl http://localhost:8000/api/status
+# Expected: {"status":"listening","cpu_percent":15.2,...}
+
+# Test config endpoint
 curl http://localhost:8000/api/config
+# Expected: Full settings JSON
+
+# Test config update
+curl -X POST http://localhost:8000/api/config \
+  -H "Content-Type: application/json" \
+  -d '{"key":"privacy_mode","value":"local"}'
+# Expected: {"status":"updated","key":"privacy_mode","value":"local"}
+
+# Test invalid update
+curl -X POST http://localhost:8000/api/config \
+  -H "Content-Type: application/json" \
+  -d '{"key":"invalid_setting","value":"test"}'
+# Expected: 400 error
 ```
+
+**Verification:**
+- [ ] All endpoints return correct data
+- [ ] Validation works
+- [ ] Error handling works
+- [ ] CORS configured
+- [ ] Committed: `python scripts/auto_commit.py "DASHBOARD-004 - API endpoints"`
 
 ---
 
@@ -2779,10 +3093,12 @@ async def get_model_stats(model_name: str):
 
 **What:** Voice-based configuration commands  
 **Why:** Configure Zema via voice  
-**Dependencies:** VOICE-007
+**Dependencies:** VOICE-007, SETUP-002  
+**Files:** @src/tools/system_config.py @src/config/config_manager.py
 
 ```markdown
 @src/tools/system_config.py
+@src/config/config_manager.py
 
 Create voice configuration handler:
 
@@ -2791,16 +3107,205 @@ Requirements:
 2. Update configuration via ConfigManager
 3. Confirm changes with voice response
 4. Support: privacy mode, camera, language, voice settings
+5. Error handling for invalid commands
+6. Return confirmation messages
 
-See ZEMA-IMPLEMENTATION.md section 4 for complete implementation.
+Implementation:
+```python
+"""
+System Configuration Tool
+Handles voice-based configuration commands
+"""
+
+import logging
+import re
+from typing import Optional, Dict, Any
+from src.config.config_manager import ConfigManager
+from src.config.settings import Settings
+
+logger = logging.getLogger(__name__)
+
+class SystemConfigTool:
+    """Handle voice configuration commands"""
+    
+    def __init__(self, settings: Settings, config_manager: ConfigManager):
+        self.settings = settings
+        self.config_manager = config_manager
+        
+        # Command patterns
+        self.commands = {
+            'privacy': {
+                'enable': ['enable privacy', 'turn on privacy', 'privacy on'],
+                'disable': ['disable privacy', 'turn off privacy', 'privacy off'],
+                'toggle': ['toggle privacy', 'switch privacy']
+            },
+            'camera': {
+                'enable': ['enable camera', 'turn on camera', 'camera on'],
+                'disable': ['disable camera', 'turn off camera', 'camera off'],
+                'tracking': {
+                    'enable': ['enable tracking', 'turn on tracking'],
+                    'disable': ['disable tracking', 'turn off tracking']
+                }
+            },
+            'voice': {
+                'language': ['switch language', 'change language', 'set language'],
+                'speed': ['change speed', 'set speed', 'voice speed']
+            }
+        }
+    
+    async def handle_command(self, command_text: str) -> str:
+        """
+        Parse and execute configuration command
+        
+        Args:
+            command_text: User's voice command
+            
+        Returns:
+            Confirmation message
+        """
+        command_lower = command_text.lower().strip()
+        
+        try:
+            # Check for privacy commands
+            if any(pattern in command_lower for pattern in self.commands['privacy']['enable']):
+                return await self._enable_privacy()
+            elif any(pattern in command_lower for pattern in self.commands['privacy']['disable']):
+                return await self._disable_privacy()
+            elif any(pattern in command_lower for pattern in self.commands['privacy']['toggle']):
+                return await self._toggle_privacy()
+            
+            # Check for camera commands
+            elif any(pattern in command_lower for pattern in self.commands['camera']['enable']):
+                return await self._enable_camera()
+            elif any(pattern in command_lower for pattern in self.commands['camera']['disable']):
+                return await self._disable_camera()
+            
+            # Check for camera tracking
+            elif any(pattern in command_lower for pattern in self.commands['camera']['tracking']['enable']):
+                return await self._enable_tracking()
+            elif any(pattern in command_lower for pattern in self.commands['camera']['tracking']['disable']):
+                return await self._disable_tracking()
+            
+            # Check for language switching
+            elif any(pattern in command_lower for pattern in self.commands['voice']['language']):
+                return await self._switch_language(command_lower)
+            
+            # Check for voice speed
+            elif any(pattern in command_lower for pattern in self.commands['voice']['speed']):
+                return await self._set_voice_speed(command_lower)
+            
+            else:
+                return "I'm sorry, I didn't understand that configuration command. Try 'enable privacy mode' or 'disable camera'."
+        
+        except Exception as e:
+            logger.error(f"Configuration error: {e}")
+            return f"I encountered an error while updating settings: {str(e)}"
+    
+    async def _enable_privacy(self) -> str:
+        """Enable privacy mode"""
+        self.config_manager.update_setting('privacy_mode', 'local')
+        return "Privacy mode enabled. All data stays local."
+    
+    async def _disable_privacy(self) -> str:
+        """Disable privacy mode (allow hybrid)"""
+        self.config_manager.update_setting('privacy_mode', 'hybrid')
+        return "Privacy mode set to hybrid."
+    
+    async def _toggle_privacy(self) -> str:
+        """Toggle privacy mode"""
+        current = self.settings.privacy_mode
+        new_mode = 'hybrid' if current == 'local' else 'local'
+        self.config_manager.update_setting('privacy_mode', new_mode)
+        return f"Privacy mode set to {new_mode}."
+    
+    async def _enable_camera(self) -> str:
+        """Enable camera"""
+        self.config_manager.update_setting('features_vision', True)
+        return "Camera enabled."
+    
+    async def _disable_camera(self) -> str:
+        """Disable camera"""
+        self.config_manager.update_setting('features_vision', False)
+        return "Camera disabled."
+    
+    async def _enable_tracking(self) -> str:
+        """Enable camera tracking"""
+        self.config_manager.update_setting('camera_tracking', True)
+        return "Camera tracking enabled."
+    
+    async def _disable_tracking(self) -> str:
+        """Disable camera tracking"""
+        self.config_manager.update_setting('camera_tracking', False)
+        return "Camera tracking disabled."
+    
+    async def _switch_language(self, command: str) -> str:
+        """Switch language"""
+        # Extract language from command
+        if 'amharic' in command or 'amharic' in command:
+            self.config_manager.update_setting('stt_language', 'am')
+            return "Language switched to Amharic."
+        elif 'english' in command or 'english' in command:
+            self.config_manager.update_setting('stt_language', 'en')
+            return "Language switched to English."
+        else:
+            return "Please specify the language: 'switch to Amharic' or 'switch to English'."
+    
+    async def _set_voice_speed(self, command: str) -> str:
+        """Set voice speed"""
+        # Extract speed value
+        speed_match = re.search(r'(\d+\.?\d*)', command)
+        if speed_match:
+            speed = float(speed_match.group(1))
+            speed = max(0.5, min(2.0, speed))  # Clamp between 0.5 and 2.0
+            self.config_manager.update_setting('tts_speed', speed)
+            return f"Voice speed set to {speed}."
+        else:
+            return "Please specify speed: 'set voice speed to 1.5'."
+```
+
+Error Handling:
+- Handle invalid commands gracefully
+- Validate settings before applying
+- Log all configuration changes
+- Provide clear error messages
+
+Integration:
+- Connects with ConfigManager for updates
+- Emits events for dashboard updates
+- Works with Orchestrator for voice responses
 ```
 
 **Expected Output:**
 - `src/tools/system_config.py` with SystemConfigTool class
+- Command parsing and execution logic
+- Voice confirmation messages
 
 **Testing:**
-- Say "Enable privacy mode" → Settings updated
-- Say "Disable camera tracking" → Camera tracking disabled
+```python
+# Test SystemConfigTool
+from src.tools.system_config import SystemConfigTool
+from src.config.config_manager import ConfigManager
+from src.config.settings import Settings
+
+settings = Settings()
+config_manager = ConfigManager(settings)
+tool = SystemConfigTool(settings, config_manager)
+
+# Test privacy command
+result = await tool.handle_command("Enable privacy mode")
+assert "Privacy mode enabled" in result
+
+# Test camera command
+result = await tool.handle_command("Disable camera tracking")
+assert "Camera tracking disabled" in result
+```
+
+**Verification:**
+- [ ] Commands parsed correctly
+- [ ] Settings updated successfully
+- [ ] Confirmation messages clear
+- [ ] Error handling works
+- [ ] Committed: `python scripts/auto_commit.py "CONFIG-001 - System config tool"`
 
 ---
 
@@ -2808,10 +3313,12 @@ See ZEMA-IMPLEMENTATION.md section 4 for complete implementation.
 
 **What:** Live configuration updates  
 **Why:** Change settings without restart  
-**Dependencies:** SETUP-002
+**Dependencies:** SETUP-002  
+**Files:** @src/config/config_manager.py @src/core/event_bus.py
 
 ```markdown
 @src/config/config_manager.py
+@src/core/event_bus.py
 
 Create configuration manager:
 
@@ -2820,16 +3327,229 @@ Requirements:
 2. Save to database
 3. Broadcast changes via event bus
 4. Reload affected modules
+5. Validate settings before applying
+6. Support rollback on error
 
-See ZEMA-IMPLEMENTATION.md section 6 for complete implementation.
+Implementation:
+```python
+"""
+Configuration Manager
+Manages live configuration updates without restart
+"""
+
+import logging
+import json
+from pathlib import Path
+from typing import Dict, Any, Optional
+from src.config.settings import Settings
+from src.core.event_bus import EventBus
+
+logger = logging.getLogger(__name__)
+
+class ConfigManager:
+    """Manage configuration updates"""
+    
+    def __init__(self, settings: Settings, event_bus: Optional[EventBus] = None):
+        self.settings = settings
+        self.event_bus = event_bus or EventBus()
+        self.config_file = Path("data/config/settings.json")
+        self.config_file.parent.mkdir(parents=True, exist_ok=True)
+        self._load_config()
+    
+    def _load_config(self):
+        """Load configuration from file"""
+        if self.config_file.exists():
+            try:
+                with open(self.config_file, 'r') as f:
+                    saved_config = json.load(f)
+                    # Update settings with saved values
+                    for key, value in saved_config.items():
+                        if hasattr(self.settings, key):
+                            setattr(self.settings, key, value)
+                logger.info("Configuration loaded from file")
+            except Exception as e:
+                logger.error(f"Failed to load config: {e}")
+    
+    def update_setting(self, key: str, value: Any) -> bool:
+        """
+        Update a single setting
+        
+        Args:
+            key: Setting name
+            value: New value
+            
+        Returns:
+            True if successful
+        """
+        try:
+            # Validate setting exists
+            if not hasattr(self.settings, key):
+                logger.error(f"Setting '{key}' not found")
+                return False
+            
+            # Validate value type
+            current_value = getattr(self.settings, key)
+            if not self._validate_type(value, type(current_value)):
+                logger.error(f"Invalid type for '{key}'")
+                return False
+            
+            # Validate value range/content
+            if not self._validate_value(key, value):
+                logger.error(f"Invalid value for '{key}'")
+                return False
+            
+            # Store old value for rollback
+            old_value = current_value
+            
+            # Update setting
+            setattr(self.settings, key, value)
+            
+            # Save to file
+            self._save_config()
+            
+            # Broadcast change
+            self.event_bus.emit('config_changed', {
+                'key': key,
+                'old_value': old_value,
+                'new_value': value
+            })
+            
+            logger.info(f"Setting updated: {key} = {value}")
+            return True
+        
+        except Exception as e:
+            logger.error(f"Failed to update setting: {e}")
+            return False
+    
+    def update_settings(self, updates: Dict[str, Any]) -> Dict[str, bool]:
+        """
+        Update multiple settings
+        
+        Args:
+            updates: Dictionary of setting updates
+            
+        Returns:
+            Dictionary with success status for each setting
+        """
+        results = {}
+        for key, value in updates.items():
+            results[key] = self.update_setting(key, value)
+        return results
+    
+    def _validate_type(self, value: Any, expected_type: type) -> bool:
+        """Validate value type"""
+        # Handle Optional types
+        if expected_type == Optional[str] or expected_type == str:
+            return isinstance(value, str)
+        elif expected_type == bool:
+            return isinstance(value, bool)
+        elif expected_type == int:
+            return isinstance(value, int)
+        elif expected_type == float:
+            return isinstance(value, (int, float))
+        return True
+    
+    def _validate_value(self, key: str, value: Any) -> bool:
+        """Validate value range/content"""
+        # Privacy mode validation
+        if key == 'privacy_mode':
+            return value in ['local', 'hybrid', 'cloud']
+        
+        # Sensitivity validation
+        if key == 'wakeword_sensitivity':
+            return 0.0 <= value <= 1.0
+        
+        # Temperature validation
+        if key == 'llm_temperature':
+            return 0.0 <= value <= 2.0
+        
+        # Port validation
+        if 'port' in key:
+            return 1024 <= value <= 65535
+        
+        return True
+    
+    def _save_config(self):
+        """Save configuration to file"""
+        try:
+            config_dict = self.settings.model_dump()
+            with open(self.config_file, 'w') as f:
+                json.dump(config_dict, f, indent=2)
+            logger.debug("Configuration saved")
+        except Exception as e:
+            logger.error(f"Failed to save config: {e}")
+    
+    def reload_module(self, module_name: str):
+        """Reload a module after config change"""
+        # Import and reload module
+        import importlib
+        try:
+            module = importlib.import_module(module_name)
+            importlib.reload(module)
+            logger.info(f"Module reloaded: {module_name}")
+        except Exception as e:
+            logger.error(f"Failed to reload module: {e}")
+    
+    def get_setting(self, key: str) -> Any:
+        """Get current setting value"""
+        return getattr(self.settings, key, None)
+    
+    def get_all_settings(self) -> Dict[str, Any]:
+        """Get all settings as dictionary"""
+        return self.settings.model_dump()
+```
+
+Error Handling:
+- Validate all settings before applying
+- Rollback on validation failure
+- Log all configuration changes
+- Handle file I/O errors gracefully
+
+Integration:
+- Emits 'config_changed' events via EventBus
+- Works with SystemConfigTool for voice commands
+- Connects with API routes for dashboard updates
+- Database integration for persistent storage
 ```
 
 **Expected Output:**
 - `src/config/config_manager.py` with ConfigManager class
+- Live configuration updates
+- Event broadcasting
+- Persistent storage
 
 **Testing:**
-- Update setting via API → Setting changed immediately
-- Update via voice → Confirmed and saved
+```python
+# Test ConfigManager
+from src.config.config_manager import ConfigManager
+from src.config.settings import Settings
+from src.core.event_bus import EventBus
+
+settings = Settings()
+event_bus = EventBus()
+manager = ConfigManager(settings, event_bus)
+
+# Test update
+success = manager.update_setting('privacy_mode', 'local')
+assert success == True
+
+# Test validation
+success = manager.update_setting('wakeword_sensitivity', 1.5)  # Invalid
+assert success == False
+
+# Test event emission
+events = []
+event_bus.subscribe('config_changed', lambda e: events.append(e))
+manager.update_setting('log_level', 'DEBUG')
+assert len(events) == 1
+```
+
+**Verification:**
+- [ ] Settings update successfully
+- [ ] Validation works correctly
+- [ ] Events broadcast properly
+- [ ] Configuration persists to file
+- [ ] Committed: `python scripts/auto_commit.py "CONFIG-002 - Configuration manager"`
 
 ---
 
@@ -2837,10 +3557,11 @@ See ZEMA-IMPLEMENTATION.md section 6 for complete implementation.
 
 **What:** Integrate config tool into orchestrator  
 **Why:** Voice commands work in main loop  
-**Dependencies:** CONFIG-001, CONFIG-002, VOICE-007
+**Dependencies:** CONFIG-001, CONFIG-002, VOICE-007  
+**Files:** @src/core/orchestrator.py
 
 ```markdown
-@src/core/orchestrator.py (update)
+@src/core/orchestrator.py
 
 Update orchestrator to handle config commands:
 
@@ -2849,16 +3570,113 @@ Requirements:
 2. Route to SystemConfigTool
 3. Get response and speak it
 4. Update dashboard via WebSocket
+5. Handle errors gracefully
+6. Provide clear feedback
 
-Update _handle_config_command method in VOICE-007 implementation.
+Implementation updates to existing Orchestrator class:
+
+```python
+# Add to Orchestrator.__init__
+from src.tools.system_config import SystemConfigTool
+from src.config.config_manager import ConfigManager
+
+# In __init__ method:
+self.config_manager = ConfigManager(self.settings)
+self.system_config_tool = SystemConfigTool(self.settings, self.config_manager)
+
+# Update _is_config_command method:
+def _is_config_command(self, text: str) -> bool:
+    """Check if user is trying to configure settings"""
+    config_keywords = [
+        "enable", "disable", "turn on", "turn off",
+        "change", "switch", "settings", "configure",
+        "set", "update", "privacy", "camera", "tracking",
+        "language", "speed", "voice"
+    ]
+    text_lower = text.lower()
+    return any(keyword in text_lower for keyword in config_keywords)
+
+# Update _handle_config_command method:
+async def _handle_config_command(self, text: str):
+    """Handle configuration commands"""
+    try:
+        logger.info(f"Processing config command: {text}")
+        
+        # Process command via SystemConfigTool
+        response = await self.system_config_tool.handle_command(text)
+        
+        # Speak confirmation
+        await self.tts.speak(response, self.audio_io)
+        
+        # Broadcast to dashboard via WebSocket
+        await self._broadcast_config_update()
+        
+        logger.info(f"Config command processed: {response}")
+        
+    except Exception as e:
+        logger.error(f"Config command error: {e}")
+        await self.tts.speak(
+            "I'm sorry, I couldn't process that configuration command. Please try again.",
+            self.audio_io
+        )
+
+async def _broadcast_config_update(self):
+    """Broadcast config update to dashboard"""
+    if hasattr(self, 'websocket_connections'):
+        config_data = self.config_manager.get_all_settings()
+        for ws in self.websocket_connections:
+            try:
+                await ws.send_json({
+                    "type": "config_update",
+                    "data": config_data
+                })
+            except Exception as e:
+                logger.error(f"Failed to broadcast config update: {e}")
+```
+
+Error Handling:
+- Catch and log config command errors
+- Provide user-friendly error messages
+- Fallback to default behavior on failure
+
+Integration:
+- Works with SystemConfigTool for command processing
+- Uses ConfigManager for setting updates
+- Broadcasts to dashboard via WebSocket
+- Integrates with TTS for voice feedback
 ```
 
 **Expected Output:**
 - Updated orchestrator with config integration
+- Voice commands processed correctly
+- Dashboard updates in real-time
 
 **Testing:**
-- Say "Enable privacy mode" → Zema responds and updates
-- Check dashboard → Setting updated
+```python
+# Test voice config integration
+# In conversation loop:
+# User: "Hey Zema, enable privacy mode"
+# Expected: 
+# 1. Wake word detected
+# 2. Command recognized as config command
+# 3. SystemConfigTool processes command
+# 4. Settings updated
+# 5. TTS speaks confirmation
+# 6. Dashboard receives WebSocket update
+
+# Manual test:
+orchestrator = Orchestrator(settings)
+await orchestrator._handle_config_command("Enable privacy mode")
+# Should speak confirmation and update dashboard
+```
+
+**Verification:**
+- [ ] Config commands detected correctly
+- [ ] Commands processed successfully
+- [ ] Voice confirmation works
+- [ ] Dashboard updates in real-time
+- [ ] Error handling works
+- [ ] Committed: `python scripts/auto_commit.py "CONFIG-003 - Voice command integration"`
 
 ---
 
@@ -3379,7 +4197,8 @@ Detects language per sentence and responds accordingly.
 
 **What:** Monitor system performance  
 **Why:** Track and optimize  
-**Dependencies:** SETUP-003
+**Dependencies:** SETUP-003  
+**Files:** @src/utils/performance.py
 
 ```markdown
 @src/utils/performance.py
@@ -3391,16 +4210,140 @@ Requirements:
 2. Response time measurement
 3. Component performance
 4. Performance alerts
+5. Metrics export
+6. Threshold monitoring
 
-Tracks performance metrics and logs slow operations.
+Implementation:
+```python
+"""
+Performance Monitoring
+Tracks system and component performance metrics
+"""
+
+import time
+import psutil
+import logging
+from typing import Dict, List, Optional
+from collections import defaultdict
+from dataclasses import dataclass
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class PerformanceMetric:
+    """Single performance metric"""
+    component: str
+    operation: str
+    duration_ms: float
+    timestamp: datetime
+    memory_mb: float
+    cpu_percent: float
+
+class PerformanceMonitor:
+    """Monitor system and component performance"""
+    
+    def __init__(self, alert_threshold_ms: float = 1000.0):
+        self.metrics: List[PerformanceMetric] = []
+        self.alert_threshold_ms = alert_threshold_ms
+        self.component_stats = defaultdict(list)
+    
+    def record(self, component: str, operation: str, duration_ms: float):
+        """Record a performance metric"""
+        metric = PerformanceMetric(
+            component=component,
+            operation=operation,
+            duration_ms=duration_ms,
+            timestamp=datetime.now(),
+            memory_mb=psutil.virtual_memory().used / 1024 / 1024,
+            cpu_percent=psutil.cpu_percent()
+        )
+        
+        self.metrics.append(metric)
+        self.component_stats[component].append(duration_ms)
+        
+        # Alert on slow operations
+        if duration_ms > self.alert_threshold_ms:
+            logger.warning(
+                f"Slow operation detected: {component}.{operation} "
+                f"took {duration_ms:.2f}ms"
+            )
+        
+        # Keep only last 1000 metrics
+        if len(self.metrics) > 1000:
+            self.metrics = self.metrics[-1000:]
+    
+    def get_component_stats(self, component: str) -> Dict[str, float]:
+        """Get statistics for a component"""
+        if component not in self.component_stats:
+            return {}
+        
+        durations = self.component_stats[component]
+        return {
+            'count': len(durations),
+            'avg_ms': sum(durations) / len(durations),
+            'min_ms': min(durations),
+            'max_ms': max(durations),
+            'p95_ms': sorted(durations)[int(len(durations) * 0.95)] if durations else 0
+        }
+    
+    def get_system_stats(self) -> Dict[str, float]:
+        """Get current system statistics"""
+        return {
+            'cpu_percent': psutil.cpu_percent(),
+            'memory_percent': psutil.virtual_memory().percent,
+            'memory_mb': psutil.virtual_memory().used / 1024 / 1024,
+            'disk_percent': psutil.disk_usage('/').percent
+        }
+```
+
+Performance Targets:
+- CPU: <70% average
+- Memory: <80% usage
+- Response time: <1000ms p95
+- Component operations: <500ms average
+
+Integration:
+- Used by all components for timing
+- Exports metrics to dashboard
+- Logs alerts for monitoring
 ```
 
 **Expected Output:**
 - `src/utils/performance.py` with PerformanceMonitor class
+- Performance tracking and metrics
+- Alert system
 
 **Testing:**
-- Monitor running → Metrics collected
-- Slow operations logged
+```python
+# Test PerformanceMonitor
+from src.utils.performance import PerformanceMonitor
+
+monitor = PerformanceMonitor()
+
+# Record metrics
+monitor.record('llm', 'generate', 150.5)
+monitor.record('stt', 'transcribe', 800.2)
+
+# Get stats
+stats = monitor.get_component_stats('llm')
+assert stats['count'] == 1
+assert stats['avg_ms'] == 150.5
+
+# System stats
+system = monitor.get_system_stats()
+assert 'cpu_percent' in system
+
+# Test alert threshold
+monitor.record('llm', 'generate', 1500.0)  # Should trigger alert
+```
+
+**Verification:**
+- [ ] Metrics recorded correctly
+- [ ] Statistics calculated properly
+- [ ] Alerts triggered on slow operations
+- [ ] System stats accurate
+- [ ] Committed: `python scripts/auto_commit.py "PERF-001 - Performance monitoring"`
 
 ---
 
