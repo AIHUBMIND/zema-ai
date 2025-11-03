@@ -1,91 +1,140 @@
-# Zema AI Personal Assistant
+# Zema AI - Privacy-First Voice Assistant
 
-A privacy-first voice assistant designed for mini PC (BOSGAME P3 Lite) running Ubuntu 22.04.
+Zema is a privacy-first, offline-capable voice assistant designed for mini PCs. Built with Python 3.11+, FastAPI, and local LLM inference using Ollama.
 
 ## Features
 
-- **Privacy-First**: All data stored locally, no cloud dependencies
-- **Offline-First**: Core features work without internet connection
-- **Voice Assistant**: Wake word detection, speech-to-text, text-to-speech
-- **Vision Processing**: Camera integration for visual context
-- **Local LLM**: Uses Ollama with Llama 13B for 100% offline inference
-- **FastAPI Backend**: Modern async API for interactions
+- **Privacy-First**: All data stays local, no cloud dependencies
+- **Offline Operation**: Core features work without internet
+- **Voice Interaction**: Wake word detection, speech-to-text, text-to-speech
+- **Computer Vision**: Object detection, scene analysis, gesture recognition
+- **Local LLM**: Uses Ollama with Llama models for 100% offline AI
+- **Web Dashboard**: Configuration and monitoring interface
+- **Multi-Language**: Support for English and Amharic
 
-## Requirements
+## Quick Start
+
+### Prerequisites
 
 - Python 3.11+
-- Ubuntu 22.04 (tested on BOSGAME P3 Lite mini PC)
-- Ollama with Llama 13B model installed locally
+- Ubuntu 22.04 (for production on BOSGAME P3 Lite)
+- Ollama installed locally
+- Insta360 Link 2 camera (optional, for vision features)
 
-## Installation
+### Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd ZEMA-AI
+git clone https://github.com/AIHUBMIND/zema-ai.git
+cd zema-ai
 ```
 
-2. Create and activate virtual environment:
+2. Run setup script (Linux):
 ```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+bash setup.sh
 ```
 
-3. Install dependencies:
+3. Activate virtual environment:
 ```bash
-pip install -r requirements.txt
+source venv/bin/activate
 ```
 
-4. Set up configuration:
+4. Configure environment:
 ```bash
-cp data/config/config.example.yaml data/config/config.yaml
-# Edit config.yaml with your settings
+cp .env.example .env
+# Edit .env with your settings
 ```
 
-5. Run the application:
+5. Download models:
 ```bash
-python -m src.main
+bash scripts/download_models.sh
+```
+
+6. Verify hardware:
+```bash
+python scripts/verify_hardware.py
+```
+
+7. Start Zema:
+```bash
+python src/main.py
 ```
 
 ## Project Structure
 
 ```
 zema-ai/
-├── src/
-│   ├── core/          # Core orchestrator, state management
-│   ├── config/        # Configuration management (Pydantic)
-│   ├── voice/         # Voice I/O, wake word, STT, TTS
-│   ├── vision/        # Camera, vision processing
-│   ├── ai/            # LLM client, context management
-│   ├── tools/         # Personal assistant tools
-│   ├── api/           # FastAPI server, routes
-│   └── utils/         # Utilities, logging, helpers
-├── scripts/           # Setup, verification, utility scripts
-├── tests/             # Unit tests, integration tests
-├── data/              # Data directory
-│   ├── config/        # Configuration files
-│   ├── logs/          # Log files
-│   ├── db/            # Database files
-│   ├── models/        # AI model files
-│   └── backups/       # Backup files
-└── docs/              # Documentation
+├── src/                  # Source code
+│   ├── core/            # Core orchestrator and state
+│   ├── config/          # Configuration management
+│   ├── voice/           # Voice I/O, STT, TTS
+│   ├── vision/          # Camera and vision processing
+│   ├── ai/              # LLM client and context
+│   ├── tools/            # Personal assistant tools
+│   ├── api/             # FastAPI server and routes
+│   └── utils/            # Utilities and helpers
+├── data/                 # Data directory
+│   ├── db/              # Database files
+│   ├── logs/            # Log files
+│   ├── models/          # AI models
+│   └── ...
+├── tests/                # Tests
+├── scripts/              # Utility scripts
+└── docs/                 # Documentation
 ```
+
+## Configuration
+
+Configuration is managed through `.env` file and Pydantic Settings. See `.env.example` for all available options.
+
+Key settings:
+- `LLM_MODEL`: Ollama model name (e.g., `llama2:13b`)
+- `PRIVACY_MODE`: Privacy mode (`local`, `hybrid`, `cloud`)
+- `CAMERA_DEVICE`: Camera device index
+- `WAKEWORD_KEYWORDS`: Wake word phrases
+
+## Usage
+
+### Voice Interaction
+
+1. Wake word: Say "Hey Zema" or configured wake words
+2. Speak your request
+3. Zema processes and responds
+
+### Web Dashboard
+
+Access dashboard at `http://localhost:8000` (default)
+
+### Configuration via Voice
+
+- "Enable privacy mode"
+- "Disable camera tracking"
+- "Switch to Amharic"
+- "Set voice speed to 1.5"
 
 ## Development
 
 ### Running Tests
+
 ```bash
 pytest tests/
 ```
 
 ### Code Style
-Follow PEP 8 and use type hints. All code should be async-first.
+
+- Follow PEP 8
+- Use type hints
+- Async/await for I/O operations
+- Pydantic for validation
 
 ## License
 
-[Specify your license here]
+[Add your license here]
 
 ## Contributing
 
 [Add contributing guidelines]
 
+## Support
+
+[Add support information]

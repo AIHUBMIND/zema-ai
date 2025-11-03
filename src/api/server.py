@@ -1,0 +1,85 @@
+"""
+Web Dashboard Server
+FastAPI server for Zema dashboard
+"""
+
+import logging
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+import asyncio
+from pathlib import Path
+from src.config.settings import Settings
+
+logger = logging.getLogger(__name__)
+
+app = FastAPI(title="Zema Dashboard", version="1.0.0")
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify domains
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount static files
+static_dir = Path("src/api/static")
+if static_dir.exists():
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+# WebSocket connections
+websocket_connections = []
+
+@app.on_event("startup")
+async def startup():
+    """Startup event"""
+    logger.info("Dashboard server starting...")
+
+@app.on_event("shutdown")
+async def shutdown():
+    """Shutdown event"""
+    logger.info("Dashboard server shutting down...")
+
+@app.get("/", response_class=HTMLResponse)
+async def dashboard():
+    """Serve main dashboard page"""
+    html_path = static_dir / "index.html"
+    if html_path.exists():
+        return html_path.read_text()
+    return "<h1>Dashboard not found</h1>"
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """WebSocket for real-time updates"""
+    await websocket.accept()
+    websocket_connections.append(websocket)
+    
+    try:
+        while True:
+            # Send status updates
+            await websocket.send_json({
+                "type": "status",
+                "data": {
+                    "listening": True,
+                    "uptime": "2h 34m"
+                }
+            })
+            await asyncio.sleep(1)
+    except WebSocketDisconnect:
+        websocket_connections.remove(websocket)
+
+async def start_dashboard(settings: Settings):
+    """Start dashboard server"""
+    config = uvicorn.Config(
+        app,
+        host=settings.dashboard_host,
+        port=settings.dashboard_port,
+        log_level="info"
+    )
+    server = uvicorn.Server(config)
+    await server.serve()
+

@@ -1,0 +1,7 @@
+/* Zema Dashboard Styles */
+body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; background: #1a1a1a; color: #fff; }
+.dashboard-container { display: flex; height: 100vh; }
+.sidebar { width: 250px; background: #2a2a2a; padding: 20px; }
+.main-content { flex: 1; padding: 20px; }
+.status-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.card { background: #2a2a2a; padding: 20px; border-radius: 8px; }
