@@ -15,8 +15,9 @@
 - Use docstrings for all public functions and classes
 
 ## Architecture Principles
-- Offline-first: All core features work without internet
-- Privacy-first: All data stored locally
+- Smart Hybrid Mode: Automatically detects Internet connectivity and switches between online services (preferred) and local LLM (fallback)
+- Offline-first: All core features work without internet using local LLM as fallback
+- Privacy-first: All data stored locally when offline; online data usage is configurable
 - Modular: Each module has single responsibility
 - Async-first: Use async/await for I/O operations
 

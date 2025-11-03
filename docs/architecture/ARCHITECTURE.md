@@ -11,8 +11,9 @@
 ### Overview
 
 Zema AI follows a **modular, event-driven architecture** designed for:
-- **Privacy:** All processing happens locally
-- **Offline-first:** Core features work without internet
+- **Smart Hybrid Mode:** Automatically detects Internet connectivity and switches between online services (preferred) and local LLM (fallback)
+- **Privacy:** All processing happens locally when offline; online data usage is configurable
+- **Offline-first:** Core features work without internet using local LLM as fallback
 - **Modularity:** Components can be tested and replaced independently
 - **Scalability:** Easy to add new features
 
@@ -120,8 +121,12 @@ User Voice
 - **No cloud sync:** Everything stays on device
 - **Encrypted database:** SQLite with encryption (optional)
 
-### Network Isolation
-- **Ollama local only:** `localhost:11434` (no external calls)
+### Network & Connectivity Strategy
+- **Smart Connectivity Detection:** Automatically detects Internet availability
+- **Hybrid Mode:** Uses online services when available, falls back to local LLM when offline
+- **Ollama local fallback:** `localhost:11434` (always available as fallback)
+- **Online preference:** When Internet is available, uses online services for better accuracy
+- **Seamless switching:** Automatically adapts to connectivity changes
 - **No telemetry:** Zero data collection
 - **Optional web access:** Dashboard only accessible locally by default
 

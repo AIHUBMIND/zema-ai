@@ -1,14 +1,18 @@
 # Zema AI - Privacy-First Voice Assistant
 
-Zema is a privacy-first, offline-capable voice assistant designed for mini PCs. Built with Python 3.11+, FastAPI, and local LLM inference using Ollama.
+Zema is a smart hybrid voice assistant designed for mini PCs. It automatically uses online services when Internet is available for better accuracy, and seamlessly falls back to local LLM (Ollama) when offline. Built with Python 3.11+, FastAPI, and intelligent connectivity detection.
 
 ## Features
 
-- **Privacy-First**: All data stays local, no cloud dependencies
-- **Offline Operation**: Core features work without internet
+- **Smart Hybrid Mode**: Automatically detects Internet connectivity and switches between online services (preferred) and local LLM (fallback)
+  - **Internet Available**: Uses online services for real-time data and better accuracy
+  - **Internet Unavailable**: Falls back to local Ollama LLM for 100% offline operation
+  - **Seamless Switching**: Automatically adapts to connectivity changes without user intervention
+- **Privacy-First**: All data stays local when offline; online data usage is configurable
+- **Offline-Capable**: Core features work without internet using local LLM
 - **Voice Interaction**: Wake word detection, speech-to-text, text-to-speech
 - **Computer Vision**: Object detection, scene analysis, gesture recognition
-- **Local LLM**: Uses Ollama with Llama models for 100% offline AI
+- **Local LLM**: Uses Ollama with Llama models for offline AI fallback
 - **Web Dashboard**: Configuration and monitoring interface
 - **Multi-Language**: Support for English and Amharic
 
@@ -88,10 +92,16 @@ zema-ai/
 Configuration is managed through `.env` file and Pydantic Settings. See `.env.example` for all available options.
 
 Key settings:
-- `LLM_MODEL`: Ollama model name (e.g., `llama2:13b`)
-- `PRIVACY_MODE`: Privacy mode (`local`, `hybrid`, `cloud`)
+- `LLM_MODEL`: Ollama model name (e.g., `llama2:13b`) - used when offline
+- `CONNECTION_MODE`: Connection mode (`auto`, `local`, `online`) - `auto` enables smart hybrid mode
+- `INTERNET_CHECK_URL`: URL to check Internet connectivity (default: `https://www.google.com`)
 - `CAMERA_DEVICE`: Camera device index
 - `WAKEWORD_KEYWORDS`: Wake word phrases
+
+**Connection Modes:**
+- `auto`: Automatically detects Internet and switches between online/local (default)
+- `local`: Always use local LLM (offline-only mode)
+- `online`: Always use online services (requires Internet)
 
 ## Usage
 
