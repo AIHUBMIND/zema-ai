@@ -462,15 +462,15 @@ python -c "import src; print('Structure OK')"
 ```
 
 **Verification:**
-- [ ] All directories created
-- [ ] All __init__.py files exist
-- [ ] README.md created
-- [ ] requirements.txt created with all dependencies
-- [ ] .gitignore created
-- [ ] .env.example created
-- [ ] pyproject.toml created
-- [ ] Structure verified
-- [ ] Committed: `python scripts/auto_commit.py "SETUP-001 - Create project structure"`
+- [x] All directories created
+- [x] All __init__.py files exist
+- [x] README.md created
+- [x] requirements.txt created with all dependencies
+- [x] .gitignore created
+- [x] .env.example created
+- [x] pyproject.toml created
+- [x] Structure verified
+- [x] Committed: `python scripts/auto_commit.py "SETUP-001 - Create project structure"`
 
 ---
 
@@ -763,13 +763,13 @@ assert isinstance(config_dict, dict)
 ```
 
 **Verification:**
-- [ ] Settings class created with all fields
-- [ ] Validation works for all fields
-- [ ] .env.example has all variables
-- [ ] Settings load from .env correctly
-- [ ] Default values work
-- [ ] Type conversion works
-- [ ] Committed: `python scripts/auto_commit.py "SETUP-002 - Configuration system"`
+- [x] Settings class created with all fields
+- [x] Validation works for all fields
+- [x] .env.example has all variables
+- [x] Settings load from .env correctly
+- [x] Default values work
+- [x] Type conversion works
+- [x] Committed: `python scripts/auto_commit.py "SETUP-002 - Configuration system"`
 
 ---
 

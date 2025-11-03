@@ -360,3 +360,25 @@ This ensures every task completion:
 - Always include the completion date
 - Update this checklist immediately after completing a task
 - Reference the verification section in `docs/guides/ZEMA-CURSOR-PROMPTS.md` for each task's specific requirements
+
+### CRITICAL: Update Verification Checkboxes in ZEMA-CURSOR-PROMPTS.md
+**CRITICAL RULE:** After completing ANY task, you MUST also update the verification checkboxes in `docs/guides/ZEMA-CURSOR-PROMPTS.md`:
+1. Find the task's verification section in `docs/guides/ZEMA-CURSOR-PROMPTS.md`
+2. Change all `- [ ]` checkboxes to `- [x]` for completed items
+3. This ensures the prompt file reflects actual completion status
+4. Both `.cursorrules` checklist AND `ZEMA-CURSOR-PROMPTS.md` verification must be updated
+
+**Example:**
+Before (in ZEMA-CURSOR-PROMPTS.md):
+```
+**Verification:**
+- [ ] Settings class created with all fields
+- [ ] Validation works for all fields
+```
+
+After (when completed):
+```
+**Verification:**
+- [x] Settings class created with all fields
+- [x] Validation works for all fields
+```
