@@ -124,52 +124,135 @@ python src/main.py
 ---
 
 #### `src/config/settings.py`
-**Purpose:** Central configuration management using Pydantic
+**Purpose:** Comprehensive configuration management using Pydantic Settings
 
 **What it does:**
-- Defines all application settings
-- Validates configuration values
+- Defines all application settings organized by category
+- Validates configuration values with type checking and constraints
 - Loads settings from environment variables or `.env` file
-- Provides default values
+- Provides sensible default values for all settings
+- Includes field validators for complex validation logic
 
 **Why it exists:**
-Instead of hardcoding values throughout the code, all settings are in one place. This makes it easy to:
+Instead of hardcoding values throughout the code, all settings are centralized in one place. This makes it easy to:
 - Change settings without editing code
-- Validate that settings are correct
+- Validate that settings are correct (e.g., port must be 1024-65535)
 - Use different settings for development/production
+- Override settings via environment variables
+- Get type-safe access to all configuration
 
 **Key Classes:**
 
 ```python
+class PrivacyMode(str, Enum):
+    """Privacy mode options: LOCAL, HYBRID, CLOUD"""
+    
 class Settings(BaseSettings):
-    """Application configuration settings."""
+    """Application settings with validation"""
 ```
 
 **What Settings contains:**
-- `app_name`: Name of the application ("Zema AI Personal Assistant")
-- `app_version`: Version number ("0.1.0")
-- `debug`: Whether to run in debug mode (True/False)
-- `api_host`: Where the API server listens ("127.0.0.1")
-- `api_port`: Port number for API (8000)
-- `ollama_base_url`: URL for Ollama server ("http://localhost:11434")
-- `ollama_model`: Which LLM model to use ("llama2:13b")
-- `wake_word_enabled`: Whether to listen for wake words (True/False)
-- `sample_rate`: Audio sample rate (16000 Hz)
-- And many more...
 
-**Why Pydantic?**
-Pydantic automatically:
-- Validates that values are the correct type (e.g., port must be a number)
+**General Settings:**
+- `environment`: Environment mode ("development" or "production")
+- `log_level`: Logging level ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+- `hostname`: System hostname ("zema")
+
+**Dashboard Settings:**
+- `enable_dashboard`: Enable web dashboard (True/False)
+- `dashboard_port`: Dashboard port (1024-65535, default: 8000)
+- `dashboard_host`: Dashboard host ("0.0.0.0")
+
+**Wake Word Settings:**
+- `wakeword_keywords`: List of wake word phrases (default: ["hey zema", "zema"])
+- `wakeword_sensitivity`: Sensitivity level (0.0-1.0, default: 0.5)
+
+**Privacy Settings:**
+- `privacy_mode`: Privacy mode (PrivacyMode enum: LOCAL, HYBRID, CLOUD)
+- `data_retention_days`: Data retention period (1-365 days, default: 30)
+
+**Audio Settings:**
+- `audio_sample_rate`: Audio sample rate in Hz (default: 16000)
+- `audio_channels`: Audio channels (1 or 2, default: 1)
+- `audio_device_name`: Optional audio device name
+
+**Voice Settings:**
+- `stt_model`: Speech-to-text model ("tiny", "base", "small", "medium")
+- `stt_language`: STT language ("en", "am", "auto")
+- `tts_engine`: Text-to-speech engine ("piper")
+- `tts_voice`: TTS voice model ("en_US-lessac-medium")
+- `tts_speed`: TTS speed multiplier (0.5-2.0, default: 1.0)
+
+**Camera Settings:**
+- `camera_device`: Camera device index (default: 0)
+- `camera_width`: Camera width in pixels (default: 1920)
+- `camera_height`: Camera height in pixels (default: 1080)
+- `camera_fps`: Camera frames per second (1-60, default: 30)
+- `camera_tracking`: Enable camera tracking (True/False)
+- `camera_gestures`: Enable gesture recognition (True/False)
+
+**LLM Settings:**
+- `llm_model`: Ollama model name (default: "llama2:13b")
+- `llm_temperature`: LLM temperature (0.0-2.0, default: 0.7)
+- `llm_max_tokens`: Maximum tokens per response (1-4096, default: 512)
+- `llm_system_prompt`: System prompt for LLM
+
+**Vision Settings:**
+- `vision_detection_model`: Detection model name (default: "yolov8n")
+- `vision_confidence_threshold`: Confidence threshold (0.0-1.0, default: 0.5)
+
+**Feature Flags:**
+- `feature_voice`: Enable voice features (True/False)
+- `feature_vision`: Enable vision features (True/False)
+- `feature_tasks`: Enable task management (True/False)
+- `feature_ethiopian`: Enable Ethiopian features (True/False)
+
+**API Keys (Optional):**
+- `gemini_api_key`: Gemini API key (optional)
+- `elevenlabs_api_key`: ElevenLabs API key (optional)
+
+**Database Settings:**
+- `database_url`: Database connection URL (default: SQLite)
+
+**Field Validators:**
+The Settings class includes validators for:
+- `privacy_mode`: Ensures valid privacy mode value
+- `log_level`: Ensures valid log level (uppercased)
+- `stt_model`: Ensures valid STT model name (lowercased)
+
+**Why Pydantic Settings?**
+Pydantic Settings automatically:
+- Validates that values are the correct type (e.g., port must be an integer)
+- Enforces constraints (e.g., port must be between 1024-65535)
 - Provides helpful error messages if validation fails
-- Allows loading from environment variables
-- Supports default values
+- Loads from environment variables automatically
+- Supports `.env` file loading
+- Provides type-safe access to all settings
+- Handles type conversion (e.g., "true" → True)
 
 **Example Usage:**
 ```python
-from src.config.settings import settings
+from src.config.settings import settings, PrivacyMode
 
-print(settings.app_name)  # "Zema AI Personal Assistant"
-print(settings.ollama_model)  # "llama2:13b"
+# Access settings with type safety
+print(settings.environment)  # "production"
+print(settings.dashboard_port)  # 8000
+print(settings.privacy_mode)  # PrivacyMode.LOCAL
+
+# Settings automatically load from .env file if it exists
+# Environment variables override defaults
+# Type validation happens automatically
+```
+
+**Configuration File:**
+Settings can be configured via `.env` file (copy from `.env.example`):
+```env
+ENVIRONMENT=production
+LOG_LEVEL=INFO
+DASHBOARD_PORT=8000
+PRIVACY_MODE=local
+LLM_MODEL=llama2:13b
+# ... etc
 ```
 
 ---

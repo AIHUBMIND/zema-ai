@@ -1,5 +1,6 @@
-"""Configuration management module."""
-from .settings import Settings
+"""Configuration module for Zema AI."""
 
-__all__ = ["Settings"]
+from src.config.settings import Settings, settings, PrivacyMode
+
+__all__ = ["Settings", "settings", "PrivacyMode"]
 
