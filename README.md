@@ -11,9 +11,11 @@ Zema is a smart hybrid voice assistant designed for mini PCs. It automatically u
 - **Privacy-First**: All data stays local when offline; online data usage is configurable
 - **Offline-Capable**: Core features work without internet using local LLM
 - **Voice Interaction**: Wake word detection, speech-to-text, text-to-speech
+- **Voice Mode**: Modern Ada-inspired voice interface with real-time visual feedback (v0.1.2)
 - **Computer Vision**: Object detection, scene analysis, gesture recognition
+- **Screen Capture**: One-click screen capture with context analysis
 - **Local LLM**: Uses Ollama with Llama models for offline AI fallback
-- **Web Dashboard**: Configuration and monitoring interface with logs viewer (v0.1.1)
+- **Web Dashboard**: Configuration and monitoring interface with Settings page, logs viewer, and Voice Mode (v0.1.3)
 - **Multi-Language**: Support for English and Amharic
 
 ## Quick Start
@@ -114,6 +116,34 @@ Key settings:
 ### Web Dashboard
 
 Access dashboard at `http://localhost:8000` (default)
+
+**Features:**
+- **Settings Page** (v0.1.3): Configure all user-facing settings via web UI (Privacy Mode, Voice Settings, AI Model, Features, API Keys)
+- **Logs Viewer**: View and filter application logs in real-time
+- **Voice Mode**: Modern Ada-inspired voice interface
+- **System Status**: Monitor CPU, memory, and uptime
+
+**To test the dashboard:**
+
+**Fastest way (live development with auto-reload):**
+```bash
+# From project root - Activate virtual environment first
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate  # Windows
+
+# Run with auto-reload (recommended for development)
+python -m uvicorn src.api.server:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Alternative (test script):**
+```bash
+# From project root - Must run from project root, not from scripts/
+python scripts/test_dashboard.py
+```
+
+**Access:** `http://localhost:8000`
+
+See `docs/guides/DASHBOARD_TESTING.md` for detailed testing and template integration guide.
 
 ### Configuration via Voice
 

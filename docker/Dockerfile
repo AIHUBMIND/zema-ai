@@ -1,0 +1,52 @@
+# Production Dockerfile
+# Uses Ubuntu 22.04 to match production hardware
+
+FROM ubuntu:22.04
+
+# Prevent interactive prompts during apt install
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
+WORKDIR /app
+
+# Install Python 3.11 and system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3.11-dev \
+    python3-pip \
+    python3.11-venv \
+    gcc \
+    g++ \
+    make \
+    libasound2-dev \
+    portaudio19-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create symlink for python command
+RUN ln -s /usr/bin/python3.11 /usr/bin/python
+
+# Copy requirements first (for better Docker layer caching)
+COPY ../requirements.txt .
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY ../src /app/src
+COPY ../config /app/config
+
+# Create data directories
+RUN mkdir -p /app/data/logs /app/data/db /app/data/config
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+
+# Expose dashboard port
+EXPOSE 8000
+
+# Run dashboard server
+CMD ["python", "-m", "uvicorn", "src.api.server:app", "--host", "0.0.0.0", "--port", "8000"]
+

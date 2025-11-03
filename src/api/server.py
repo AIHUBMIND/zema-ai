@@ -12,7 +12,7 @@ import uvicorn
 import asyncio
 from pathlib import Path
 from src.config.settings import Settings
-from src.api.routes import logs, system, config, users, conversations
+from src.api.routes import logs, system, config, users, conversations, voice, vision
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,8 @@ app.include_router(system.router)
 app.include_router(config.router)
 app.include_router(users.router)
 app.include_router(conversations.router)
+app.include_router(voice.router)
+app.include_router(vision.router)
 
 # CORS middleware
 app.add_middleware(
@@ -68,17 +70,31 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     
     try:
         while True:
+            # Get real status using shared function
+            try:
+                status = system.get_system_status()
+            except Exception as e:
+                logger.error(f"Error getting status: {e}")
+                # Fallback status
+                status = {
+                    "listening": False,
+                    "cpu_percent": 0,
+                    "memory_percent": 0,
+                    "uptime": 0
+                }
+            
             # Send status updates
             await websocket.send_json({
                 "type": "status",
-                "data": {
-                    "listening": True,
-                    "uptime": "2h 34m"
-                }
+                "data": status
             })
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)  # Update every 2 seconds
     except WebSocketDisconnect:
         websocket_connections.remove(websocket)
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        if websocket in websocket_connections:
+            websocket_connections.remove(websocket)
 
 async def start_dashboard(settings: Settings) -> None:
     """Start dashboard server"""

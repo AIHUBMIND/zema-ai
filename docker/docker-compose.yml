@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  zema-dashboard:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: zema-dashboard
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount data directories so logs persist
+      - ../data/logs:/app/data/logs
+      - ../data/db:/app/data/db
+      - ../data/config:/app/data/config
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - DASHBOARD_HOST=0.0.0.0
+      - DASHBOARD_PORT=8000
+    restart: unless-stopped
+    networks:
+      - zema-network
+
+networks:
+  zema-network:
+    driver: bridge
+

@@ -1,0 +1,55 @@
+# Files and directories to exclude from Docker build context
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Environment files
+.env
+.env.local
+
+# Data files (will be mounted as volume)
+data/logs/*
+data/db/*
+!data/logs/.gitkeep
+!data/db/.gitkeep
+
+# Documentation (optional - exclude if not needed in container)
+docs/
+
+# Tests (optional - exclude if not needed in container)
+tests/
+
+# Scripts (optional - exclude if not needed in container)
+scripts/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files themselves
+docker/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+

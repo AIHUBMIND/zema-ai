@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  zema-dashboard-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: zema-dashboard-dev
+    ports:
+      - "8001:8000"  # Changed to 8001 to avoid conflict with Portainer
+    volumes:
+      # Mount code for live changes - HOT RELOAD!
+      - ../src:/app/src
+      - ../src/api/static:/app/src/api/static
+      - ../data:/app/data
+      - ../config:/app/config
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - DASHBOARD_HOST=0.0.0.0
+      - DASHBOARD_PORT=8000
+    command: python3 -m uvicorn src.api.server:app --reload --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+    networks:
+      - zema-network
+
+networks:
+  zema-network:
+    driver: bridge
+

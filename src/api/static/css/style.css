@@ -1,35 +1,24 @@
-/* Zema Dashboard Styles */
-body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; background: #1a1a1a; color: #fff; }
-.dashboard-container { display: flex; height: 100vh; }
-.sidebar { width: 250px; background: #2a2a2a; padding: 20px; }
-.main-content { flex: 1; padding: 20px; overflow-y: auto; }
-.status-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-.card { background: #2a2a2a; padding: 20px; border-radius: 8px; }
+/* Zema Dashboard Custom Styles - AdminLTE Integration */
 
-/* Navigation */
-.nav-menu { list-style: none; padding: 0; margin: 0; }
-.nav-menu li { margin: 10px 0; }
-.nav-menu a { color: #ccc; text-decoration: none; display: block; padding: 10px; border-radius: 4px; }
-.nav-menu a:hover { background: #3a3a3a; }
-.nav-menu a.active { background: #4a4a4a; color: #fff; }
-
-/* Sections */
-.section { display: none; }
-.section.active { display: block; }
-
-/* Logs Viewer */
-.logs-container { height: calc(100vh - 120px); display: flex; flex-direction: column; }
-.logs-header { margin-bottom: 20px; }
-.logs-controls { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; align-items: center; }
-.logs-controls select, .logs-controls input[type="text"], .logs-controls input[type="number"] {
-    padding: 8px; border: 1px solid #444; background: #2a2a2a; color: #fff; border-radius: 4px;
+/* Override AdminLTE defaults for logs viewer */
+.logs-container {
+    height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
 }
-.logs-controls button { padding: 8px 16px; background: #4a4a4a; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-.logs-controls button:hover { background: #5a5a5a; }
-.logs-controls button#clear-logs { background: #d32f2f; }
-.logs-controls button#clear-logs:hover { background: #c62828; }
-.logs-controls label { color: #ccc; font-size: 14px; display: flex; align-items: center; gap: 5px; }
-.logs-stats { color: #888; font-size: 12px; margin-top: 10px; }
+
+.logs-header {
+    margin-bottom: 20px;
+}
+
+.logs-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 15px 0;
+    align-items: center;
+}
+
 .logs-viewer { 
     flex: 1; 
     background: #1a1a1a; 
@@ -40,7 +29,9 @@ body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0;
     font-family: 'Courier New', monospace; 
     font-size: 13px; 
     line-height: 1.5;
+    min-height: 400px;
 }
+
 .log-entry { 
     padding: 6px 8px; 
     margin: 2px 0; 
@@ -51,14 +42,65 @@ body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0;
     gap: 10px;
     align-items: start;
 }
+
 .log-entry.debug { border-left-color: #666; background: #1f1f1f; }
 .log-entry.info { border-left-color: #2196f3; background: #1a2332; }
 .log-entry.warning { border-left-color: #ff9800; background: #2a2419; }
 .log-entry.error { border-left-color: #f44336; background: #2a1f1f; }
 .log-entry.critical { border-left-color: #d32f2f; background: #2a1a1a; font-weight: bold; }
 .log-entry.loading { border-left-color: #666; color: #888; font-style: italic; }
+
 .log-time { color: #888; font-size: 11px; }
 .log-level { font-weight: bold; font-size: 11px; }
 .log-module { color: #aaa; font-size: 11px; }
 .log-message { color: #ddd; }
 .log-exception { color: #f44336; margin-top: 5px; padding-left: 20px; font-size: 12px; grid-column: 1 / -1; }
+
+.logs-stats { 
+    color: #888; 
+    font-size: 12px; 
+    margin-top: 10px; 
+}
+
+/* Content sections */
+.content-section {
+    display: none;
+}
+
+.content-section:first-child {
+    display: block;
+}
+
+/* Custom card styles */
+.card {
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+}
+
+/* Small box enhancements */
+.small-box .icon {
+    color: rgba(255,255,255,.15);
+}
+
+/* Status indicator colors */
+.small-box.bg-success {
+    background-color: #28a745 !important;
+}
+
+.small-box.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .logs-viewer {
+        font-size: 11px;
+    }
+    
+    .log-entry {
+        grid-template-columns: 60px 60px 1fr;
+    }
+    
+    .log-module {
+        display: none;
+    }
+}
